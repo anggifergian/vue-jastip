@@ -1,0 +1,44 @@
+[
+  {
+    "id": "skincare-beauty",
+    "name": "Skincare & Beauty",
+    "icon": "Sparkles",
+    "color": "#EC4899",
+    "description": "Korean & Japanese skincare, makeup, and beauty tools"
+  },
+  {
+    "id": "food-snacks",
+    "name": "Food & Snacks",
+    "icon": "Cookie",
+    "color": "#F59E0B",
+    "description": "Authentic snacks, candies, and food items from Asia"
+  },
+  {
+    "id": "merchandise",
+    "name": "Merchandise & Action Figures",
+    "icon": "Star",
+    "color": "#6366F1",
+    "description": "Official merch, action figures, and collectibles"
+  },
+  {
+    "id": "stationery",
+    "name": "Stationery",
+    "icon": "PenLine",
+    "color": "#10B981",
+    "description": "Muji, Loft, and exclusive stationery items"
+  },
+  {
+    "id": "fashion",
+    "name": "Fashion",
+    "icon": "Shirt",
+    "color": "#3B82F6",
+    "description": "Shoes, t-shirts, and exclusive fashion items"
+  },
+  {
+    "id": "gadget-electronics",
+    "name": "Gadget & Electronics",
+    "icon": "Cpu",
+    "color": "#F97316",
+    "description": "Latest gadgets, accessories, and electronics"
+  }
+]
