@@ -159,7 +159,7 @@ async function onFileInputChange(e: Event) {
             :class="
               isDragOver
                 ? 'border-indigo-400 bg-indigo-100 text-indigo-600'
-                : 'border-gray-300 text-gray-400 hover:border-indigo-400 hover:text-indigo-500'
+                : 'border-gray-300 text-gray-400 hover:border-primary hover:text-primary'
             "
           >
             <Plus :size="20" />
@@ -190,7 +190,7 @@ async function onFileInputChange(e: Event) {
       <button
         v-if="successPhotos.length > 0"
         @click="openPreview(0)"
-        class="shrink-0 flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
+        class="shrink-0 flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-primary transition-colors"
       >
         <Eye :size="13" />
         Preview

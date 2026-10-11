@@ -56,7 +56,7 @@ async function isAccepted(file: File): Promise<boolean> {
     :max-size-mb="maxSizeMb"
     :is-accepted="isAccepted"
     :upload-fn="uploadFn"
-    @success="$emit('success', $event[0], $event[1])"
+    @success="(url, file) => $emit('success', url, file)"
     @error="$emit('error', $event)"
   />
 </template>

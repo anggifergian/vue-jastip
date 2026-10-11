@@ -1,25 +1,108 @@
+/* ─── Light mode tokens ─────────────────────────────────────────────────── */
 :root {
-  --color-brand: #4f46e5;
-  --color-brand-light: #6366f1;
+  --background: #ffffff;
+  --foreground: #1f2937; /* gray-800 */
+
+  --primary: #2596be;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f5f9;
+  --secondary-foreground: #475569;
+
+  --muted: #f9fafb;
+  --muted-foreground: #6b7280;
+
+  --accent: #e0f4fb;
+  --accent-foreground: #0e6d8c;
+
+  --danger: #ef4444;
+  --danger-foreground: #ffffff;
+
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #2596be;
+
+  --radius: 0.5rem;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
+/* ─── Dark mode tokens ──────────────────────────────────────────────────── */
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+
+  --primary: #4ab0d4;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1e293b;
+  --secondary-foreground: #cbd5e1;
+
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  --accent: #082f49;
+  --accent-foreground: #38bdf8;
+
+  --danger: #f87171;
+  --danger-foreground: #ffffff;
+
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #4ab0d4;
 }
 
-body {
-  min-height: 100vh;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  font-size: 15px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ─── Tailwind theme registration ───────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 0.125rem);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 0.25rem);
+  --radius-xl: calc(var(--radius) + 0.5rem);
+  --radius-2xl: calc(var(--radius) + 1rem);
+}
+
+/* ─── Base reset ────────────────────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }

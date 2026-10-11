@@ -57,7 +57,7 @@ function doRemove() {
         </div>
         <button
           @click="confirmRemove"
-          class="text-gray-300 hover:text-rose-500 transition-colors p-1 shrink-0"
+          class="text-gray-300 hover:text-danger transition-colors p-1 shrink-0"
           aria-label="Remove item"
         >
           <Trash2 :size="16" />
@@ -71,7 +71,7 @@ function doRemove() {
             @click="cartStore.updateQuantity(item.id, item.quantity - 1)"
             :disabled="item.quantity === 1"
             class="w-8 h-8 flex items-center justify-center transition-colors"
-            :class="item.quantity === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-200'"
+            :class="item.quantity === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-secondary'"
             aria-label="Decrease quantity"
           >
             <Minus :size="13" />
@@ -81,7 +81,7 @@ function doRemove() {
           </span>
           <button
             @click="cartStore.updateQuantity(item.id, item.quantity + 1)"
-            class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+            class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-secondary transition-colors"
             aria-label="Increase quantity"
           >
             <Plus :size="13" />
@@ -92,7 +92,7 @@ function doRemove() {
         <button
           @click="editingNotes = !editingNotes; localNotes = item.notes ?? ''"
           class="flex items-center gap-1 text-xs transition-colors"
-          :class="item.notes ? 'text-indigo-500' : 'text-gray-400 hover:text-indigo-500'"
+          :class="item.notes ? 'text-primary' : 'text-gray-400 hover:text-primary'"
         >
           <StickyNote :size="13" />
           {{ item.notes ? 'Catatan' : 'Tambah catatan' }}
@@ -112,13 +112,13 @@ function doRemove() {
           <div class="flex gap-2 mt-2">
             <button
               @click="editingNotes = false"
-              class="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              class="text-xs text-gray-400 hover:text-foreground transition-colors"
             >
               Batal
             </button>
             <button
               @click="saveNotes"
-              class="text-xs text-indigo-600 font-semibold hover:text-indigo-700 transition-colors"
+              class="text-xs text-indigo-600 font-semibold hover:text-primary transition-colors"
             >
               Simpan
             </button>
@@ -158,13 +158,13 @@ function doRemove() {
             <div class="flex gap-2.5">
               <button
                 @click="cancelRemove"
-                class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+                class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-muted transition-colors"
               >
                 Batal
               </button>
               <button
                 @click="doRemove"
-                class="flex-1 py-2.5 rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 transition-colors"
+                class="flex-1 py-2.5 rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-danger transition-colors"
               >
                 Hapus
               </button>

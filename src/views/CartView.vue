@@ -17,11 +17,11 @@ const isSheetOpen = ref(false)
   <AppContainer spacing="py-6 lg:py-10 pb-28 lg:pb-10">
     <!-- Header -->
     <div class="flex items-center gap-2 mb-6 page-enter">
-      <ShoppingCart :size="20" class="text-indigo-600" />
-      <h1 class="text-xl lg:text-2xl font-bold text-gray-900">
+      <ShoppingCart :size="20" class="text-primary" />
+      <h1 class="text-xl lg:text-2xl font-bold">
         Daftar Titipan
         <Transition name="count-swap" mode="out-in">
-          <span v-if="cartStore.totalItems > 0" :key="cartStore.totalItems" class="text-indigo-600">
+          <span v-if="cartStore.totalItems > 0" :key="cartStore.totalItems" class="text-primary">
             ({{ cartStore.totalItems }})
           </span>
         </Transition>
@@ -37,16 +37,16 @@ const isSheetOpen = ref(false)
         key="empty"
         class="flex flex-col items-center justify-center py-24 gap-5"
       >
-        <div class="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center">
-          <ShoppingBag :size="36" class="text-indigo-300" />
+        <div class="w-20 h-20 rounded-full bg-accent flex items-center justify-center">
+          <ShoppingBag :size="36" class="text-primary/40" />
         </div>
         <div class="text-center">
-          <p class="font-semibold text-gray-700">Belum ada titipan</p>
-          <p class="text-sm text-gray-400 mt-1">Temukan produk dari Jepang & Korea dan mulai titip</p>
+          <p class="font-semibold">Belum ada titipan</p>
+          <p class="text-sm text-muted-foreground mt-1">Temukan produk dari Jepang & Korea dan mulai titip</p>
         </div>
         <RouterLink
           to="/catalog"
-          class="px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors"
+          class="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
         >
           Lihat Catalog
         </RouterLink>
@@ -65,7 +65,7 @@ const isSheetOpen = ref(false)
           </TransitionGroup>
 
           <div class="mt-4 flex items-center justify-between">
-            <RouterLink to="/catalog" class="text-sm text-indigo-600 font-medium hover:underline">
+            <RouterLink to="/catalog" class="text-sm text-primary font-medium hover:underline">
               ← Tambah item lain
             </RouterLink>
             <AppButton variant="danger" size="sm" @click="cartStore.clearCart()">
@@ -87,12 +87,12 @@ const isSheetOpen = ref(false)
   <Transition name="bottom-bar">
     <div
       v-if="cartStore.items.length > 0"
-      class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-3 z-30 shadow-xl"
+      class="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3 z-30 shadow-xl"
     >
       <div class="flex items-center justify-between gap-4">
         <div>
-          <p class="text-xs text-gray-500">Daftar Titipan</p>
-          <p class="text-base font-bold text-gray-900">
+          <p class="text-xs text-muted-foreground">Daftar Titipan</p>
+          <p class="text-base font-bold">
             {{ cartStore.totalItems }} item
           </p>
         </div>

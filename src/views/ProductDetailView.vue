@@ -2,11 +2,13 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { ArrowRight, ShoppingCart, Plus, Minus, Package } from '@lucide/vue'
+import { ArrowRight, ShoppingCart, Plus, Minus, Trash2, Package } from '@lucide/vue'
 import { fetchProduct } from '@/services/catalog'
 import { useCartStore } from '@/stores/cart'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppContainer from '@/components/layout/AppContainer.vue'
+import ProductImageGallery from '@/components/product/ProductImageGallery.vue'
+import { cn } from '@/lib/utils'
 
 const route = useRoute()
 const router = useRouter()
@@ -35,39 +37,45 @@ const badgeColors: Record<string, string> = {
   New: 'bg-green-100 text-green-700',
   Limited: 'bg-rose-100 text-rose-700',
 }
+
+const galleryImages = computed(() => {
+  if (!product.value) return []
+  return product.value.images?.length
+    ? product.value.images
+    : [{ url: product.value.image, alt: product.value.name }]
+})
 </script>
 
 <template>
-  <AppContainer spacing="py-6 lg:py-10">
+  <AppContainer spacing="py-6 lg:py-10 pb-28 lg:pb-10">
     <!-- Back -->
     <button
       @click="router.back()"
-      class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-indigo-600 transition-colors mb-6"
+      class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6"
     >
       <ArrowRight :size="14" class="rotate-180" />
       Back
     </button>
 
-    <!-- Loading ↔ error ↔ product crossfade -->
     <Transition name="page-fade" mode="out-in">
 
       <!-- Loading skeleton -->
       <div v-if="isLoading" key="loading" class="lg:grid lg:grid-cols-2 lg:gap-12 animate-pulse">
-        <div class="aspect-square bg-gray-100 rounded-2xl mb-6 lg:mb-0" />
+        <div class="h-72 lg:aspect-square lg:h-auto bg-muted rounded-xl mb-6 lg:mb-0" />
         <div class="space-y-4">
-          <div class="h-4 bg-gray-100 rounded w-24" />
-          <div class="h-7 bg-gray-100 rounded w-3/4" />
-          <div class="h-7 bg-gray-100 rounded w-1/2" />
-          <div class="h-4 bg-gray-100 rounded w-full mt-6" />
-          <div class="h-4 bg-gray-100 rounded w-5/6" />
-          <div class="h-12 bg-gray-100 rounded-xl mt-8" />
+          <div class="h-4 bg-muted rounded w-24" />
+          <div class="h-7 bg-muted rounded w-3/4" />
+          <div class="h-7 bg-muted rounded w-1/2" />
+          <div class="h-4 bg-muted rounded w-full mt-6" />
+          <div class="h-4 bg-muted rounded w-5/6" />
+          <div class="h-12 bg-muted rounded-xl mt-8" />
         </div>
       </div>
 
       <!-- Not found -->
       <div v-else-if="isError || !product" key="error" class="text-center py-24">
-        <Package :size="48" class="mx-auto mb-4 text-gray-300" />
-        <p class="font-semibold text-gray-700">Product not found</p>
+        <Package :size="48" class="mx-auto mb-4 text-muted-foreground/40" />
+        <p class="font-semibold">Product not found</p>
         <AppButton variant="outline" class="mt-5" @click="router.push('/catalog')">
           Back to Catalog
         </AppButton>
@@ -76,17 +84,9 @@ const badgeColors: Record<string, string> = {
       <!-- Product detail -->
       <div v-else key="product" class="lg:grid lg:grid-cols-2 lg:gap-12">
 
-        <!-- Image -->
-        <div class="relative aspect-square overflow-hidden rounded-2xl bg-gray-50 mb-6 lg:mb-0 img-reveal">
-          <img :src="product.image" :alt="product.name" class="w-full h-full object-cover" />
-          <div
-            v-if="!product.inStock"
-            class="absolute inset-0 bg-white/70 flex items-center justify-center"
-          >
-            <span class="text-sm font-semibold text-gray-500 bg-white px-4 py-2 rounded-full border">
-              Out of Stock
-            </span>
-          </div>
+        <!-- Image gallery -->
+        <div class="mb-6 lg:mb-0 img-reveal">
+          <ProductImageGallery :images="galleryImages" :in-stock="product.inStock" />
         </div>
 
         <!-- Details -->
@@ -97,12 +97,14 @@ const badgeColors: Record<string, string> = {
             <div class="flex items-center gap-2 flex-wrap">
               <span
                 v-if="product.badge"
-                class="text-xs font-semibold px-2.5 py-1 rounded-full"
-                :class="badgeColors[product.badge] ?? 'bg-indigo-100 text-indigo-700'"
+                :class="cn(
+                  'text-xs font-semibold px-2.5 py-1 rounded-full',
+                  badgeColors[product.badge] ?? 'bg-accent text-accent-foreground',
+                )"
               >
                 {{ product.badge }}
               </span>
-              <span class="text-xs font-medium bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">
+              <span class="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
                 {{ product.origin === 'Japan' ? '🇯🇵' : '🇰🇷' }} {{ product.origin }}
               </span>
             </div>
@@ -110,7 +112,7 @@ const badgeColors: Record<string, string> = {
 
           <!-- Name: i=1 -->
           <div class="detail-stagger" style="--i: 1">
-            <h1 class="text-xl lg:text-2xl font-bold text-gray-900 leading-snug">
+            <h1 class="text-xl lg:text-2xl font-bold leading-snug">
               {{ product.name }}
             </h1>
           </div>
@@ -118,8 +120,8 @@ const badgeColors: Record<string, string> = {
           <!-- Price: i=2 -->
           <div class="detail-stagger" style="--i: 2">
             <div>
-              <p class="text-2xl font-bold text-indigo-600">{{ formattedPrice }}</p>
-              <p class="text-xs text-gray-400 mt-1">
+              <p class="text-2xl font-bold text-primary">{{ formattedPrice }}</p>
+              <p class="text-xs text-muted-foreground mt-1">
                 Harga di toko asal · Harga final dikonfirmasi via invoice
               </p>
             </div>
@@ -127,20 +129,20 @@ const badgeColors: Record<string, string> = {
 
           <!-- Description: i=3 -->
           <div class="detail-stagger" style="--i: 3">
-            <p class="text-sm text-gray-500 leading-relaxed">{{ product.description }}</p>
+            <p class="text-sm text-muted-foreground leading-relaxed">{{ product.description }}</p>
           </div>
 
           <!-- Meta: i=4 -->
           <div class="detail-stagger" style="--i: 4">
-            <div class="flex items-center gap-4 text-sm text-gray-400">
+            <div class="flex items-center gap-4 text-sm text-muted-foreground">
               <span>⚖️ {{ product.weight }}g</span>
-              <span class="text-gray-200">|</span>
+              <span class="text-border">|</span>
               <span>📦 Est. 7–21 hari kerja</span>
             </div>
           </div>
 
-          <!-- CTA: i=5 -->
-          <div class="detail-stagger border-t border-gray-100 pt-4 mt-auto" style="--i: 5">
+          <!-- CTA desktop only: i=5 -->
+          <div class="hidden lg:block detail-stagger border-t border-border pt-4 mt-auto" style="--i: 5">
             <div v-if="product.inStock">
               <Transition name="cart-swap" mode="out-in">
                 <AppButton
@@ -155,32 +157,34 @@ const badgeColors: Record<string, string> = {
                 </AppButton>
 
                 <div v-else key="qty" class="flex items-center gap-4">
-                  <div class="flex items-center bg-indigo-50 rounded-xl p-1.5 gap-2">
+                  <div class="flex items-center bg-accent rounded-xl p-1.5 gap-2">
                     <button
-                      @click="cartStore.updateQuantity(product.id, qty - 1)"
-                      :disabled="qty === 1"
-                      class="w-9 h-9 rounded-lg bg-white border border-indigo-100 flex items-center justify-center transition-colors shadow-sm"
-                      :class="qty === 1 ? 'text-indigo-200 cursor-not-allowed' : 'text-indigo-600 hover:bg-indigo-100'"
+                      @click="qty === 1 ? cartStore.removeItem(product.id) : cartStore.updateQuantity(product.id, qty - 1)"
+                      :class="cn(
+                        'w-9 h-9 rounded-lg bg-background border border-border flex items-center justify-center transition-colors shadow-sm',
+                        qty === 1 ? 'text-danger hover:bg-danger/10' : 'text-primary hover:bg-accent',
+                      )"
                     >
-                      <Minus :size="16" />
+                      <Trash2 v-if="qty === 1" :size="16" />
+                      <Minus v-else :size="16" />
                     </button>
-                    <span class="w-8 text-center font-bold text-indigo-700">{{ qty }}</span>
+                    <span class="w-8 text-center font-bold text-primary">{{ qty }}</span>
                     <button
                       @click="cartStore.addItem(product)"
-                      class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white hover:bg-indigo-700 transition-colors"
+                      class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
                       <Plus :size="16" />
                     </button>
                   </div>
                   <AppButton variant="outline" size="lg" class="flex-1" @click="router.push('/cart')">
-                    Lihat Daftar
+                    Lihat Keranjang
                   </AppButton>
                 </div>
               </Transition>
             </div>
 
-            <p v-else class="text-sm text-gray-400 text-center py-2">
-              This item is currently out of stock
+            <p v-else class="text-sm text-muted-foreground text-center py-2">
+              Produk ini sedang tidak tersedia
             </p>
           </div>
 
@@ -188,6 +192,58 @@ const badgeColors: Record<string, string> = {
       </div>
     </Transition>
   </AppContainer>
+
+  <!-- Mobile fixed bottom CTA -->
+  <Teleport to="body">
+    <div
+      v-if="product && !isLoading"
+      class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border px-4 py-3"
+    >
+      <div v-if="product.inStock">
+        <Transition name="cart-swap" mode="out-in">
+          <AppButton
+            v-if="qty === 0"
+            key="add"
+            size="lg"
+            class="w-full"
+            @click="cartStore.addItem(product)"
+          >
+            <ShoppingCart :size="18" />
+            Titip Ini
+          </AppButton>
+
+          <div v-else key="qty" class="flex items-center gap-3">
+            <div class="flex items-center bg-accent rounded-xl p-1.5 gap-2">
+              <button
+                @click="qty === 1 ? cartStore.removeItem(product.id) : cartStore.updateQuantity(product.id, qty - 1)"
+                :class="cn(
+                  'w-9 h-9 rounded-lg bg-background border border-border flex items-center justify-center transition-colors shadow-sm',
+                  qty === 1 ? 'text-danger hover:bg-danger/10' : 'text-primary hover:bg-accent',
+                )"
+              >
+                <Trash2 v-if="qty === 1" :size="16" />
+                <Minus v-else :size="16" />
+              </button>
+              <span class="w-8 text-center font-bold text-primary">{{ qty }}</span>
+              <button
+                @click="cartStore.addItem(product)"
+                class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                <Plus :size="16" />
+              </button>
+            </div>
+            <AppButton variant="outline" size="lg" class="flex-1" @click="router.push('/cart')">
+              Lihat Keranjang
+            </AppButton>
+          </div>
+        </Transition>
+      </div>
+
+      <p v-else class="text-sm text-muted-foreground text-center py-1">
+        Produk ini sedang tidak tersedia
+      </p>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>

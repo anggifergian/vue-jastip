@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Category } from '@/types'
 
-const props = defineProps<{
+defineProps<{
   category: string
   categories: Category[]
 }>()
@@ -22,7 +22,7 @@ const emit = defineEmits<{
           :class="
             category === 'all'
               ? 'bg-indigo-50 text-indigo-600 font-semibold'
-              : 'text-gray-600 hover:bg-gray-100'
+              : 'text-gray-600 hover:bg-muted'
           "
         >
           Semua Produk
@@ -35,7 +35,7 @@ const emit = defineEmits<{
           :class="
             category === cat.id
               ? 'bg-indigo-50 text-indigo-600 font-semibold'
-              : 'text-gray-600 hover:bg-gray-100'
+              : 'text-gray-600 hover:bg-muted'
           "
         >
           <span class="w-2 h-2 rounded-full shrink-0" :style="{ backgroundColor: cat.color }" />

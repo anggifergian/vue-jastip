@@ -4,7 +4,7 @@ interface UseDragDropOptions {
   onFiles: (files: File[]) => void
   isAccepted: (file: File) => Promise<boolean> | boolean
   maxSizeMb: MaybeRefOrGetter<number>
-  remainingSlots?: MaybeRefOrGetter<number>
+  remainingSlots?: MaybeRefOrGetter<number | undefined>
   canDrop?: MaybeRefOrGetter<boolean>
 }
 

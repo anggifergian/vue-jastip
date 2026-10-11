@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import CatalogView from '../views/CatalogView.vue'
+import CartView from '../views/CartView.vue'
+import ProductDetailView from '../views/ProductDetailView.vue'
 import { supabase } from '@/lib/supabase'
 
 const router = createRouter({
@@ -14,17 +17,22 @@ const router = createRouter({
     {
       path: '/catalog',
       name: 'catalog',
-      component: () => import('../views/CatalogView.vue'),
+      component: CatalogView,
     },
     {
       path: '/cart',
       name: 'cart',
-      component: () => import('../views/CartView.vue'),
+      component: CartView,
+    },
+    {
+      path: '/orders',
+      name: 'orders',
+      component: () => import('../views/OrdersView.vue'),
     },
     {
       path: '/product/:id',
       name: 'product-detail',
-      component: () => import('../views/ProductDetailView.vue'),
+      component: ProductDetailView,
     },
     {
       path: '/login',
@@ -42,6 +50,12 @@ const router = createRouter({
       path: '/admin/products/new',
       name: 'admin-product-new',
       component: () => import('../views/admin/AdminProductFormView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/admin/products/edit/:id',
+      name: 'admin-product-edit',
+      component: () => import('../views/admin/AdminProductEditView.vue'),
       meta: { requiresAuth: true },
     },
   ],

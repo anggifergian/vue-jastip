@@ -120,11 +120,13 @@ let touchStartX = 0
 let touchStartY = 0
 
 function onTouchStart(e: TouchEvent) {
-  touchStartX = e.touches[0].clientX
-  touchStartY = e.touches[0].clientY
+  const touch = e.touches[0]
+  if (!touch) return
+  touchStartX = touch.clientX
+  touchStartY = touch.clientY
   if (isZoomed.value) {
-    dragOriginX = e.touches[0].clientX
-    dragOriginY = e.touches[0].clientY
+    dragOriginX = touch.clientX
+    dragOriginY = touch.clientY
     panOriginX  = panX.value
     panOriginY  = panY.value
   }
@@ -132,16 +134,21 @@ function onTouchStart(e: TouchEvent) {
 
 function onTouchMove(e: TouchEvent) {
   if (!isZoomed.value) return
-  panX.value = panOriginX + (e.touches[0].clientX - dragOriginX)
-  panY.value = panOriginY + (e.touches[0].clientY - dragOriginY)
+  const touch = e.touches[0]
+  if (!touch) return
+  panX.value = panOriginX + (touch.clientX - dragOriginX)
+  panY.value = panOriginY + (touch.clientY - dragOriginY)
 }
 
 function onTouchEnd(e: TouchEvent) {
   if (isZoomed.value) return
-  const dx = touchStartX - e.changedTouches[0].clientX
-  const dy = touchStartY - e.changedTouches[0].clientY
+  const changed = e.changedTouches[0]
+  if (!changed) return
+  const dx = touchStartX - changed.clientX
+  const dy = touchStartY - changed.clientY
   if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return
-  dx > 0 ? goNext() : goPrev()
+  if (dx > 0) goNext()
+  else goPrev()
 }
 
 // ── Keyboard ─────────────────────────────────────────────
@@ -204,7 +211,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
             <img
               v-if="photos[currentIndex]"
               :key="currentIndex"
-              :src="photos[currentIndex].previewUrl"
+              :src="photos[currentIndex]?.previewUrl"
               :alt="`Foto ${currentIndex + 1}`"
               class="max-h-full max-w-full object-contain px-16 select-none transition-transform duration-150"
               :style="{

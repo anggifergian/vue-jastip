@@ -176,7 +176,7 @@ function close() {
           <!-- Close button -->
           <button
             @click="close"
-            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-secondary flex items-center justify-center text-gray-500 transition-colors"
           >
             <X :size="15" />
           </button>
@@ -251,7 +251,7 @@ function close() {
                   v-if="canResend"
                   @click="resend"
                   :disabled="isResending"
-                  class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 disabled:opacity-50 transition-colors"
+                  class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-primary disabled:opacity-50 transition-colors"
                 >
                   <Loader2 v-if="isResending" :size="13" class="animate-spin" />
                   <RotateCcw v-else :size="13" />

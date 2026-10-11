@@ -6,6 +6,11 @@ export interface Category {
   description: string
 }
 
+export interface ProductImage {
+  url: string
+  alt?: string
+}
+
 export interface Product {
   id: string
   name: string
@@ -13,6 +18,7 @@ export interface Product {
   price: number
   currency: 'JPY' | 'KRW'
   image: string
+  images?: ProductImage[]
   description: string
   origin: string
   weight: number

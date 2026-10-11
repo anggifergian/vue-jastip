@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { X, Sparkles, Cookie, Star, PenLine, Shirt, Cpu } from '@lucide/vue'
@@ -41,7 +40,7 @@ function goToAll() {
             <h2 class="text-lg font-bold text-gray-800">Browse Categories</h2>
             <button
               @click="emit('close')"
-              class="text-gray-400 hover:text-gray-600 transition-colors"
+              class="text-gray-400 hover:text-foreground transition-colors"
             >
               <X :size="20" />
             </button>
@@ -52,7 +51,7 @@ function goToAll() {
               v-for="cat in categories"
               :key="cat.id"
               @click="selectCategory(cat.id)"
-              class="flex items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all text-left group"
+              class="flex items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-primary/30 hover:bg-accent transition-all text-left group"
             >
               <div
                 class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
@@ -60,7 +59,7 @@ function goToAll() {
               >
                 <component :is="iconMap[cat.icon]" :size="20" />
               </div>
-              <span class="text-sm font-medium text-gray-700 group-hover:text-indigo-600 leading-tight">
+              <span class="text-sm font-medium text-gray-700 group-hover:text-primary leading-tight">
                 {{ cat.name }}
               </span>
             </button>
@@ -68,7 +67,7 @@ function goToAll() {
 
           <button
             @click="goToAll"
-            class="w-full py-2.5 rounded-xl border border-indigo-200 text-indigo-600 text-sm font-medium hover:bg-indigo-50 transition-colors"
+            class="w-full py-2.5 rounded-xl border border-indigo-200 text-indigo-600 text-sm font-medium hover:bg-accent transition-colors"
           >
             View All Products
           </button>

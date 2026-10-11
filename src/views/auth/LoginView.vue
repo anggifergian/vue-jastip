@@ -97,7 +97,7 @@ function onVerified() {
           <button
             type="submit"
             :disabled="isSending"
-            class="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold transition-all shadow-md shadow-indigo-200 active:scale-[0.98]"
+            class="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-primary disabled:opacity-60 text-white text-sm font-semibold transition-all shadow-md shadow-indigo-200 active:scale-[0.98]"
           >
             <Loader2 v-if="isSending" :size="16" class="animate-spin" />
             <template v-else>

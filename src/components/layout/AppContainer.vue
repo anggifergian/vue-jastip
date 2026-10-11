@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto w-full px-4 lg:px-8" :class="spacing">
+  <div class="md:max-w-7xl mx-auto w-full px-4 lg:px-8" :class="spacing">
     <slot />
   </div>
 </template>

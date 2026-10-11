@@ -1,26 +1,42 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Plus, Package, Trash2, Globe, ImageIcon, MoreVertical, RefreshCw } from '@lucide/vue'
+import { Plus, Package, RefreshCw, SlidersHorizontal } from '@lucide/vue'
 import AppContainer from '@/components/layout/AppContainer.vue'
 import AppButton from '@/components/ui/AppButton.vue'
-import { getAdminProducts, deleteProduct, updateProductStatus } from '@/services/product'
-import type { Product } from '@/services/product'
+import AdminProductTable from '@/components/admin/AdminProductTable.vue'
+import AdminProductFilterModal from '@/components/admin/AdminProductFilterModal.vue'
+import { getAdminProducts } from '@/services/admin/product'
+import type { AdminProduct } from '@/services/admin/product'
 
 const router = useRouter()
 
 // ── State ────────────────────────────────────────────────
-const products = ref<Product[]>([])
+const products = ref<AdminProduct[]>([])
 const isLoading = ref(true)
 const fetchError = ref('')
 
-// Per-card action loading: keyed by product id + action
-const pending = ref<Record<string, boolean>>({})
-function isPending(id: string, action: string) {
-  return !!pending.value[`${id}:${action}`]
+// ── Filter ───────────────────────────────────────────────
+const isFilterOpen = ref(false)
+const filterCategory = ref('')
+const filterStatus = ref('')
+
+const filterCount = computed(
+  () => [filterCategory.value, filterStatus.value].filter(Boolean).length,
+)
+const hasActiveFilter = computed(() => filterCount.value > 0)
+
+function onFilterApply(category: string, status: string) {
+  filterCategory.value = category
+  filterStatus.value = status
+  isFilterOpen.value = false
+  load()
 }
-function setPending(id: string, action: string, val: boolean) {
-  pending.value[`${id}:${action}`] = val
+
+function clearFilter() {
+  filterCategory.value = ''
+  filterStatus.value = ''
+  load()
 }
 
 // ── Fetch ────────────────────────────────────────────────
@@ -28,7 +44,10 @@ async function load() {
   isLoading.value = true
   fetchError.value = ''
   try {
-    products.value = await getAdminProducts()
+    const params: Record<string, string> = {}
+    if (filterCategory.value) params.category = filterCategory.value
+    if (filterStatus.value) params.status = filterStatus.value
+    products.value = await getAdminProducts(params)
   } catch {
     fetchError.value = 'Gagal memuat produk. Periksa koneksi dan coba lagi.'
   } finally {
@@ -39,71 +58,35 @@ async function load() {
 onMounted(load)
 
 // ── Actions ──────────────────────────────────────────────
-async function handleDelete(product: Product) {
-  if (!confirm(`Hapus "${product.name}"? Tindakan ini tidak dapat dibatalkan.`)) return
-
-  setPending(product.id, 'delete', true)
-  try {
-    await deleteProduct(product.id)
-    products.value = products.value.filter((p) => p.id !== product.id)
-  } catch {
-    alert('Gagal menghapus produk. Coba lagi.')
-  } finally {
-    setPending(product.id, 'delete', false)
-  }
+function handleDelete(product: AdminProduct) {
+  products.value = products.value.filter((p) => p.id !== product.id)
 }
 
-async function handlePublish(product: Product) {
-  setPending(product.id, 'publish', true)
-  try {
-    await updateProductStatus(product.id, 'published')
-    const target = products.value.find((p) => p.id === product.id)
-    if (target) target.status = 'published'
-  } catch {
-    alert('Gagal mengubah status produk. Coba lagi.')
-  } finally {
-    setPending(product.id, 'publish', false)
-  }
+function onPublished(product: AdminProduct) {
+  const target = products.value.find((p) => p.id === product.id)
+  if (target) target.status = 'published'
 }
 
-// ── Helpers ──────────────────────────────────────────────
-function formatPrice(price: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'JPY',
-    maximumFractionDigits: 0,
-  }).format(price)
+function onArchived(product: AdminProduct) {
+  const target = products.value.find((p) => p.id === product.id)
+  if (target) target.status = 'archived'
 }
 
-function formatDate(ts: number) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(ts))
-}
-
-const STATUS_STYLE: Record<string, string> = {
-  published: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  draft: 'bg-gray-100   text-gray-500   border-gray-200',
-  archived: 'bg-amber-50   text-amber-700  border-amber-200',
-}
-function statusStyle(s: string) {
-  return STATUS_STYLE[s] ?? STATUS_STYLE.draft
+function openFilter() {
+  isFilterOpen.value = !isFilterOpen.value
 }
 </script>
 
 <template>
   <AppContainer spacing="py-6 lg:py-10">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+        <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
           <Package :size="20" class="text-indigo-600" />
         </div>
         <div>
-          <h1 class="text-xl font-bold text-gray-900">Produk</h1>
-          <p class="text-sm text-gray-400">
+          <p class="text-gray-400 text-sm">
             {{ isLoading ? '...' : `${products.length} produk` }}
           </p>
         </div>
@@ -113,16 +96,38 @@ function statusStyle(s: string) {
         <button
           @click="load"
           :disabled="isLoading"
-          class="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-indigo-600 hover:border-indigo-200 transition-colors disabled:opacity-40"
+          class="w-8 h-8 flex items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-primary hover:border-primary/30 transition-colors disabled:opacity-40"
           title="Refresh"
         >
-          <RefreshCw :size="15" :class="isLoading ? 'animate-spin' : ''" />
+          <RefreshCw :size="14" :class="isLoading ? 'animate-spin' : ''" />
         </button>
-        <AppButton @click="router.push({ name: 'admin-product-new' })">
-          <Plus :size="16" class="-ml-0.5" />
+        <AppButton size="sm" class="rounded-md" @click="router.push({ name: 'admin-product-new' })">
+          <Plus :size="14" class="-ml-0.5" />
           Tambah Produk
         </AppButton>
       </div>
+    </div>
+
+    <div class="mb-4 flex items-center justify-end">
+      <button
+        @click="openFilter"
+        class="px-3 gap-1.5 h-8 flex items-center justify-center rounded-md border text-xs transition-colors"
+        :class="
+          hasActiveFilter
+            ? 'border-primary/40 text-primary bg-primary/5 hover:bg-primary/10'
+            : 'border-gray-200 text-gray-400 hover:text-primary hover:border-primary/30'
+        "
+        title="Filter"
+      >
+        <SlidersHorizontal :size="13" />
+        <span>Filter</span>
+        <span
+          v-if="filterCount > 0"
+          class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold leading-none"
+        >
+          {{ filterCount }}
+        </span>
+      </button>
     </div>
 
     <!-- Error -->
@@ -133,25 +138,27 @@ function statusStyle(s: string) {
       <p class="text-sm text-rose-600">{{ fetchError }}</p>
       <button
         @click="load"
-        class="text-xs font-semibold text-rose-600 hover:text-rose-700 underline underline-offset-2"
+        class="text-xs font-semibold text-rose-600 hover:text-danger underline underline-offset-2"
       >
         Coba lagi
       </button>
     </div>
 
     <!-- Skeleton -->
-    <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div v-if="isLoading" class="rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+      <div class="h-11 bg-gray-50 border-b border-gray-100" />
       <div
-        v-for="n in 6"
+        v-for="n in 5"
         :key="n"
-        class="bg-white rounded-2xl border border-gray-100 overflow-hidden animate-pulse"
+        class="flex items-center gap-4 px-4 py-3 border-b border-gray-50 last:border-0"
       >
-        <div class="aspect-[4/3] bg-gray-100" />
-        <div class="p-4 space-y-2.5">
-          <div class="h-3.5 bg-gray-100 rounded-full w-3/4" />
-          <div class="h-3 bg-gray-100 rounded-full w-1/2" />
-          <div class="h-3 bg-gray-100 rounded-full w-1/3 mt-3" />
+        <div class="w-12 h-12 rounded-lg bg-gray-100 shrink-0" />
+        <div class="flex-1 space-y-2">
+          <div class="h-3 bg-gray-100 rounded w-2/3" />
+          <div class="h-3 bg-gray-100 rounded w-1/3" />
         </div>
+        <div class="h-6 w-16 bg-gray-100 rounded-full hidden sm:block" />
+        <div class="h-7 w-20 bg-gray-100 rounded-lg" />
       </div>
     </div>
 
@@ -168,127 +175,21 @@ function statusStyle(s: string) {
       </AppButton>
     </div>
 
-    <!-- Grid -->
-    <TransitionGroup
+    <!-- Table -->
+    <AdminProductTable
       v-else
-      name="card"
-      tag="div"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-    >
-      <div
-        v-for="product in products"
-        :key="product.id"
-        class="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md hover:border-gray-200 transition-all duration-200"
-      >
-        <!-- Image -->
-        <div class="relative aspect-[4/3] bg-gray-50 overflow-hidden">
-          <img
-            v-if="product.main_image"
-            :src="product.main_image"
-            :alt="product.name"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <div v-else class="w-full h-full flex items-center justify-center">
-            <ImageIcon :size="32" class="text-gray-200" />
-          </div>
-
-          <!-- Status badge -->
-          <span
-            class="absolute top-2.5 left-2.5 px-2 py-0.5 text-[10px] font-semibold rounded-full border capitalize"
-            :class="statusStyle(product.status)"
-          >
-            {{ product.status }}
-          </span>
-
-          <!-- Image count -->
-          <span
-            v-if="product.images.length > 1"
-            class="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-md backdrop-blur-sm"
-          >
-            +{{ product.images.length - 1 }} foto
-          </span>
-        </div>
-
-        <!-- Body -->
-        <div class="p-4">
-          <div class="flex items-start justify-between gap-2 mb-1">
-            <h3 class="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 flex-1">
-              {{ product.name }}
-            </h3>
-          </div>
-
-          <p class="text-xs text-gray-400 mb-3">{{ product.category }}</p>
-
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-sm font-bold text-indigo-600">{{ formatPrice(product.price) }}</span>
-            <span class="text-xs text-gray-400">
-              Stok: <span class="font-medium text-gray-600">{{ product.stock }}</span>
-            </span>
-          </div>
-
-          <!-- Actions -->
-          <div class="flex items-center gap-2 pt-3 border-t border-gray-50">
-            <!-- Publish -->
-            <button
-              v-if="product.status !== 'published'"
-              @click="handlePublish(product)"
-              :disabled="isPending(product.id, 'publish') || isPending(product.id, 'delete')"
-              class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-semibold transition-colors disabled:opacity-50"
-            >
-              <Globe v-if="!isPending(product.id, 'publish')" :size="13" />
-              <RefreshCw v-else :size="13" class="animate-spin" />
-              Publish
-            </button>
-            <div
-              v-else
-              class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-semibold"
-            >
-              <Globe :size="13" />
-              Published
-            </div>
-
-            <!-- Delete -->
-            <button
-              @click="handleDelete(product)"
-              :disabled="isPending(product.id, 'delete') || isPending(product.id, 'publish')"
-              class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 transition-colors disabled:opacity-50 shrink-0"
-              title="Hapus produk"
-            >
-              <RefreshCw v-if="isPending(product.id, 'delete')" :size="13" class="animate-spin" />
-              <Trash2 v-else :size="13" />
-            </button>
-          </div>
-
-          <p class="text-[10px] text-gray-300 mt-2.5 text-right">
-            {{ formatDate(product.created_at) }}
-          </p>
-        </div>
-      </div>
-    </TransitionGroup>
+      :products="products"
+      @published="onPublished"
+      @delete="handleDelete"
+      @archived="onArchived"
+    />
   </AppContainer>
-</template>
 
-<style scoped>
-.card-enter-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-.card-leave-active {
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-.card-enter-from {
-  opacity: 0;
-  transform: scale(0.97);
-}
-.card-leave-to {
-  opacity: 0;
-  transform: scale(0.97);
-}
-.card-leave-active {
-  position: absolute;
-  width: 100%;
-}
-</style>
+  <AdminProductFilterModal
+    :open="isFilterOpen"
+    :category="filterCategory"
+    :status="filterStatus"
+    @close="isFilterOpen = false"
+    @apply="onFilterApply"
+  />
+</template>

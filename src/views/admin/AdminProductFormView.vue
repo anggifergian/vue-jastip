@@ -9,9 +9,10 @@ import ProductForm from '@/components/admin/ProductForm.vue'
 const router = useRouter()
 
 const submitSuccess = ref(false)
-const formKey       = ref(0)
+const formKey = ref(0)
 
 function onSuccess() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   submitSuccess.value = true
 }
 
@@ -25,9 +26,7 @@ function addAnother() {
   <AppContainer spacing="py-6 lg:py-10">
     <!-- Breadcrumb -->
     <div class="flex items-center gap-2 text-sm text-gray-400 mb-6">
-      <button @click="router.push('/')" class="hover:text-indigo-600 transition-colors">
-        Home
-      </button>
+      <button @click="router.push('/')" class="hover:text-primary transition-colors">Home</button>
       <ArrowRight :size="12" />
       <span class="text-gray-600 font-medium">Tambah Produk</span>
     </div>
@@ -46,7 +45,9 @@ function addAnother() {
     <!-- Success state -->
     <Transition name="content-fade" mode="out-in">
       <div v-if="submitSuccess" key="success" class="text-center py-20">
-        <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
+        <div
+          class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4"
+        >
           <CheckCircle2 :size="32" class="text-emerald-500" />
         </div>
         <h2 class="text-lg font-bold text-gray-900 mb-1">Produk berhasil ditambahkan!</h2>
@@ -54,7 +55,9 @@ function addAnother() {
           Produk akan muncul di catalog setelah diverifikasi.
         </p>
         <div class="flex items-center justify-center gap-3">
-          <AppButton variant="outline" @click="router.push({ name: 'admin-products' })">Lihat Catalog</AppButton>
+          <AppButton variant="outline" @click="router.push({ name: 'admin-products' })"
+            >Lihat Daftar Produk</AppButton
+          >
           <AppButton @click="addAnother">Tambah Lagi</AppButton>
         </div>
       </div>

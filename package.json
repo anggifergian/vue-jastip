@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
+    "build:prod": "run-p type-check \"build-only -- --mode prod\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
     "build-only": "vite build",
@@ -22,8 +23,10 @@
     "@vueuse/core": "^15.0.0",
     "axios": "^1.20.0",
     "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "heic-to": "^1.5.2",
     "pinia": "^4.0.3",
+    "sweetalert2": "^11.26.25",
     "tailwind-merge": "^3.7.0",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1"

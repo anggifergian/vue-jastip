@@ -11,17 +11,17 @@ const buttonVariants = cva(
     'transition-all duration-150 select-none',
     'active:scale-[0.97]',
     'disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
   ].join(' '),
   {
     variants: {
       variant: {
-        primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
-        secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-        outline: 'border border-indigo-200 text-indigo-600 hover:bg-indigo-50',
-        ghost: 'text-gray-600 hover:bg-gray-100',
-        danger: 'text-rose-500 hover:bg-rose-50',
-        destructive: 'bg-rose-500 text-white hover:bg-rose-600',
+        primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        outline: 'border border-primary/30 text-primary hover:bg-accent',
+        ghost: 'text-muted-foreground hover:bg-muted',
+        danger: 'text-danger hover:bg-danger/10',
+        destructive: 'bg-danger text-danger-foreground hover:bg-danger/90',
       },
       size: {
         sm: 'h-8 px-3 text-xs rounded-lg',

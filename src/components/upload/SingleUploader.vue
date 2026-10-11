@@ -99,7 +99,7 @@ function onFileInputChange(e: Event) {
       :can-drop="canDrop"
       class="relative overflow-hidden"
       :class="{
-        'border-gray-200 bg-gray-50 hover:border-indigo-300 hover:bg-indigo-50/30 cursor-pointer':
+        'border-gray-200 bg-gray-50 hover:border-primary/50 hover:bg-accent/30 cursor-pointer':
           state === 'idle',
         'border-indigo-200 bg-gray-50': state === 'uploading',
         'border-emerald-200': state === 'success',
@@ -107,9 +107,9 @@ function onFileInputChange(e: Event) {
       }"
       active-class="border-indigo-400 bg-indigo-50 scale-[1.01]"
       @files="
-        ([file]) => {
+        (files) => {
           state = 'idle'
-          processFile(file)
+          if (files[0]) processFile(files[0])
         }
       "
       @click="state === 'idle' || state === 'error' ? triggerPicker() : undefined"
@@ -186,7 +186,7 @@ function onFileInputChange(e: Event) {
             </div>
             <button
               @click.stop="reset"
-              class="text-xs font-semibold text-rose-600 hover:text-rose-700 underline underline-offset-2 transition-colors"
+              class="text-xs font-semibold text-rose-600 hover:text-danger underline underline-offset-2 transition-colors"
             >
               Coba lagi
             </button>
