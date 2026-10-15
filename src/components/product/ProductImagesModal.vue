@@ -207,7 +207,7 @@ watch(
         <!-- Footer -->
         <div
           :class="cn(
-            'shrink-0 border-t px-5 py-3 flex items-center gap-2 transition-colors',
+            'relative z-10 shrink-0 border-t px-5 py-3 flex items-center gap-2 transition-colors',
             deleteError ? 'border-danger/20 bg-danger/5' : 'border-border',
           )"
         >

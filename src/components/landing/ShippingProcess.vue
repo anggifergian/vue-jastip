@@ -52,7 +52,7 @@ const steps = [
   <section id="shipping-process" class="py-14 lg:py-20 bg-white">
     <AppContainer>
       <div class="text-center mb-12">
-        <p class="text-indigo-600 text-sm font-semibold uppercase tracking-widest mb-2">
+        <p class="text-indigo-600 text-sm font-semibold uppercase mb-2">
           Transparansi Proses
         </p>
         <h2 class="text-2xl lg:text-3xl font-bold text-gray-900">Proses Pengiriman</h2>

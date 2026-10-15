@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { MessageCircle, Phone, MapPin } from '@lucide/vue'
 import AppContainer from '@/components/layout/AppContainer.vue'
+import { waLink } from '@/lib/whatsapp'
 </script>
 
 <template>
   <section id="contact" class="py-14 lg:py-20 bg-indigo-600">
     <AppContainer>
       <div class="text-center mb-10">
-        <p class="text-indigo-200 text-sm font-semibold uppercase tracking-widest mb-2">Get in Touch</p>
+        <p class="text-indigo-200 text-sm font-semibold uppercase mb-2">Get in Touch</p>
         <h2 class="text-2xl lg:text-3xl font-bold text-white">Hubungi Kami</h2>
         <p class="text-indigo-200 mt-3 text-sm lg:text-base max-w-md mx-auto">
           Ada pertanyaan? Kami siap membantu! Hubungi kami via WhatsApp untuk respons tercepat.
@@ -17,7 +18,7 @@ import AppContainer from '@/components/layout/AppContainer.vue'
       <div class="flex flex-col items-center gap-5">
         <!-- Primary CTA: WhatsApp -->
         <a
-          href="https://wa.me/628123456789"
+          :href="waLink()"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-3 bg-green-500 hover:bg-green-400 text-white font-bold px-8 py-4 rounded-2xl text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all"

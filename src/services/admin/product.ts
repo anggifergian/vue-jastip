@@ -13,16 +13,18 @@ export interface AdminProduct {
   slug: string
   name: string
   description: string | null
-  price: number
+  original_price: number
+  flat_fee: number | null
   currency: string | null
+  country: string | null
   category: string | null
   status: string
   stock: number
   maxOrder: number | null
   images: AdminProductImage[]
   main_image: string | null
-  created_at: number
-  updated_at: number
+  created_at: string
+  updated_at: string
 }
 
 export interface CreateProductPayload {
@@ -30,7 +32,9 @@ export interface CreateProductPayload {
   description: string
   category: string
   currency: string
-  price: number
+  country: string
+  original_price: number
+  flat_fee: number
   stock: number
   maxOrder: number
   image_keys: string[]
@@ -41,7 +45,9 @@ export interface UpdateProductPayload {
   description?: string
   category?: string
   currency?: string
-  price?: number
+  country?: string
+  original_price?: number
+  flat_fee?: number
   stock?: number
   maxOrder?: number
 }

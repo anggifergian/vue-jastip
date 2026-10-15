@@ -2,6 +2,11 @@
 import { ref } from 'vue'
 import AppUpload from '@/components/upload/AppUpload.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import AppFormField from '@/components/ui/AppFormField.vue'
+import AppInput from '@/components/ui/AppInput.vue'
+import AppTextarea from '@/components/ui/AppTextarea.vue'
+import AppSelect from '@/components/ui/AppSelect.vue'
+import AppInputPrefix from '@/components/ui/AppInputPrefix.vue'
 import { presignUpload } from '@/services/upload'
 import { createProduct } from '@/services/admin/product'
 import { MAX_PRODUCT_PHOTOS } from '@/constants/product'
@@ -9,13 +14,14 @@ import { AxiosError } from 'axios'
 
 const emit = defineEmits<{ success: [] }>()
 
-// ── Form state ──────────────────────────────────────────
 const imageKeys = ref<string[]>([])
 const name = ref('')
 const description = ref('')
 const category = ref('')
 const currency = ref('JPY')
-const price = ref<number | ''>('')
+const country = ref('JP')
+const originalPrice = ref<number | ''>('')
+const flatFee = ref<number | ''>('')
 const stock = ref<number | ''>('')
 const maxOrder = ref<number | ''>('')
 const inStock = ref(true)
@@ -23,7 +29,6 @@ const inStock = ref(true)
 const isSubmitting = ref(false)
 const submitError = ref('')
 
-// ── Static data ─────────────────────────────────────────
 const categories = [
   { id: 'skincare-beauty', name: 'Skincare & Beauty' },
   { id: 'food-snacks', name: 'Food & Snacks' },
@@ -41,7 +46,15 @@ const currencies = [
   { code: 'IDR', label: 'IDR — Rupiah' },
 ]
 
-// ── Validation ──────────────────────────────────────────
+const countries = [
+  { code: 'JP', label: 'Jepang' },
+  { code: 'KR', label: 'Korea Selatan' },
+  { code: 'US', label: 'Amerika Serikat' },
+  { code: 'CN', label: 'Tiongkok' },
+  { code: 'TW', label: 'Taiwan' },
+  { code: 'SG', label: 'Singapura' },
+]
+
 const errors = ref<Record<string, string>>({})
 
 function validate(): boolean {
@@ -50,7 +63,8 @@ function validate(): boolean {
   if (!name.value.trim()) e.name = 'Nama produk wajib diisi.'
   if (!description.value.trim()) e.desc = 'Deskripsi wajib diisi.'
   if (!category.value) e.category = 'Pilih kategori produk.'
-  if (!price.value || Number(price.value) <= 0) e.price = 'Masukkan harga yang valid.'
+  if (!originalPrice.value || Number(originalPrice.value) <= 0) e.price = 'Masukkan harga yang valid.'
+  if (flatFee.value === '' || Number(flatFee.value) < 0) e.flatFee = 'Masukkan flat fee yang valid.'
   if (stock.value === '' || Number(stock.value) < 0) e.stock = 'Masukkan jumlah stok.'
   if (!maxOrder.value || Number(maxOrder.value) <= 0) e.maxOrder = 'Masukkan batas order.'
   errors.value = e
@@ -62,7 +76,6 @@ function onPhotosChange(keys: string[]) {
   if (keys.length) delete errors.value.image
 }
 
-// ── Submit ──────────────────────────────────────────────
 async function submit() {
   if (!validate()) return
 
@@ -75,12 +88,13 @@ async function submit() {
       description: description.value.trim(),
       category: category.value,
       currency: currency.value,
-      price: Number(price.value),
+      country: country.value,
+      original_price: Number(originalPrice.value),
+      flat_fee: Number(flatFee.value),
       stock: Number(stock.value),
       maxOrder: Number(maxOrder.value),
       image_keys: imageKeys.value,
     })
-
     emit('success')
   } catch (err: unknown) {
     const apiError = err instanceof AxiosError ? err.response?.data?.error : undefined
@@ -96,7 +110,7 @@ async function submit() {
     <div class="lg:grid lg:grid-cols-[340px_1fr] lg:gap-10 lg:items-start">
       <!-- Left: Image upload -->
       <div class="mb-8 lg:mb-0 lg:sticky lg:top-24">
-        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
+        <label class="block text-xs font-semibold text-gray-500 uppercase mb-3">
           Gambar Produk <span class="text-rose-400">*</span>
         </label>
         <AppUpload
@@ -118,41 +132,21 @@ async function submit() {
             Informasi Dasar
           </h2>
           <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-gray-500 mb-1.5">
-                Nama Produk <span class="text-rose-400">*</span>
-              </label>
-              <input
+            <AppFormField label="Nama Produk" required :error="errors.name">
+              <AppInput
                 v-model="name"
-                type="text"
                 placeholder="cth. Hada Labo Gokujyun Hyaluronic Lotion"
-                class="w-full h-10 px-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                :class="
-                  errors.name
-                    ? 'border-rose-300 bg-rose-50'
-                    : 'border-gray-200 focus:border-indigo-300'
-                "
+                :error="!!errors.name"
               />
-              <p v-if="errors.name" class="mt-1 text-xs text-rose-500">{{ errors.name }}</p>
-            </div>
+            </AppFormField>
 
-            <div>
-              <label class="block text-xs font-semibold text-gray-500 mb-1.5">
-                Deskripsi <span class="text-rose-400">*</span>
-              </label>
-              <textarea
+            <AppFormField label="Deskripsi" required :error="errors.desc">
+              <AppTextarea
                 v-model="description"
-                rows="3"
                 placeholder="Deskripsi singkat produk..."
-                class="w-full px-3 py-2.5 rounded-xl border text-sm resize-none transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                :class="
-                  errors.desc
-                    ? 'border-rose-300 bg-rose-50'
-                    : 'border-gray-200 focus:border-indigo-300'
-                "
+                :error="!!errors.desc"
               />
-              <p v-if="errors.desc" class="mt-1 text-xs text-rose-500">{{ errors.desc }}</p>
-            </div>
+            </AppFormField>
           </div>
         </section>
 
@@ -161,23 +155,12 @@ async function submit() {
           <h2 class="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">
             Kategori
           </h2>
-          <div>
-            <select
-              v-model="category"
-              class="w-full h-10 px-3 rounded-xl border text-sm bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-300 appearance-none"
-              :class="
-                errors.category
-                  ? 'border-rose-300 bg-rose-50'
-                  : 'border-gray-200 focus:border-indigo-300'
-              "
-            >
+          <AppFormField label="Kategori" required :error="errors.category">
+            <AppSelect v-model="category" :error="!!errors.category">
               <option value="" disabled>Pilih kategori...</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
-              </option>
-            </select>
-            <p v-if="errors.category" class="mt-1 text-xs text-rose-500">{{ errors.category }}</p>
-          </div>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </AppSelect>
+          </AppFormField>
         </section>
 
         <!-- Pricing & Stock -->
@@ -186,90 +169,40 @@ async function submit() {
             Harga & Stok
           </h2>
           <div class="space-y-4">
-            <!-- Currency -->
-            <div>
-              <label class="block text-xs font-semibold text-gray-500 mb-1.5">Mata Uang</label>
-              <select
-                v-model="currency"
-                class="w-full h-10 px-3 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 appearance-none"
-              >
-                <option v-for="c in currencies" :key="c.code" :value="c.code">{{ c.label }}</option>
-              </select>
-            </div>
-
-            <!-- Price -->
-            <div>
-              <label class="block text-xs font-semibold text-gray-500 mb-1.5">
-                Harga <span class="text-rose-400">*</span>
-              </label>
-              <div class="relative">
-                <span
-                  class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400"
-                >
-                  {{ currency }}
-                </span>
-                <input
-                  v-model="price"
-                  type="number"
-                  min="1"
-                  placeholder="0"
-                  class="w-full h-10 pl-12 pr-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                  :class="
-                    errors.price
-                      ? 'border-rose-300 bg-rose-50'
-                      : 'border-gray-200 focus:border-indigo-300'
-                  "
-                />
-              </div>
-              <p v-if="errors.price" class="mt-1 text-xs text-rose-500">{{ errors.price }}</p>
-            </div>
-
-            <!-- Stock & MaxOrder -->
+            <!-- Currency & Country -->
             <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-gray-500 mb-1.5">
-                  Stok <span class="text-rose-400">*</span>
-                </label>
-                <input
-                  v-model="stock"
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  class="w-full h-10 px-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                  :class="
-                    errors.stock
-                      ? 'border-rose-300 bg-rose-50'
-                      : 'border-gray-200 focus:border-indigo-300'
-                  "
-                />
-                <p v-if="errors.stock" class="mt-1 text-xs text-rose-500">{{ errors.stock }}</p>
-              </div>
+              <AppFormField label="Mata Uang">
+                <AppSelect v-model="currency">
+                  <option v-for="c in currencies" :key="c.code" :value="c.code">{{ c.label }}</option>
+                </AppSelect>
+              </AppFormField>
+              <AppFormField label="Negara Asal">
+                <AppSelect v-model="country">
+                  <option v-for="c in countries" :key="c.code" :value="c.code">{{ c.label }}</option>
+                </AppSelect>
+              </AppFormField>
+            </div>
 
-              <div>
-                <label class="block text-xs font-semibold text-gray-500 mb-1.5">
-                  Maks. Order <span class="text-rose-400">*</span>
-                </label>
-                <input
-                  v-model="maxOrder"
-                  type="number"
-                  min="1"
-                  placeholder="0"
-                  class="w-full h-10 px-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                  :class="
-                    errors.maxOrder
-                      ? 'border-rose-300 bg-rose-50'
-                      : 'border-gray-200 focus:border-indigo-300'
-                  "
-                />
-                <p v-if="errors.maxOrder" class="mt-1 text-xs text-rose-500">
-                  {{ errors.maxOrder }}
-                </p>
-              </div>
+            <AppFormField label="Harga" required :error="errors.price">
+              <AppInputPrefix v-model="originalPrice" :prefix="currency" :error="!!errors.price" min="1" />
+            </AppFormField>
+
+            <AppFormField label="Flat Fee" required :error="errors.flatFee">
+              <AppInputPrefix v-model="flatFee" :prefix="currency" :error="!!errors.flatFee" min="0" />
+            </AppFormField>
+
+            <div class="grid grid-cols-2 gap-4">
+              <AppFormField label="Stok" required :error="errors.stock">
+                <AppInput v-model="stock" type="number" placeholder="0" min="0" :error="!!errors.stock" />
+              </AppFormField>
+              <AppFormField label="Maks. Order" required :error="errors.maxOrder">
+                <AppInput v-model="maxOrder" type="number" placeholder="0" min="1" :error="!!errors.maxOrder" />
+              </AppFormField>
             </div>
           </div>
         </section>
 
-        <!-- Stock toggle -->
+        <!-- Availability toggle -->
         <section>
           <h2 class="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">
             Ketersediaan
@@ -295,7 +228,6 @@ async function submit() {
           </div>
         </section>
 
-        <!-- Submit error -->
         <p
           v-if="submitError"
           class="text-sm text-rose-500 bg-rose-50 px-4 py-3 rounded-xl border border-rose-100"
@@ -303,20 +235,12 @@ async function submit() {
           {{ submitError }}
         </p>
 
-        <!-- Actions -->
         <div class="flex items-center justify-end gap-3 pt-2">
           <AppButton variant="ghost" type="button" @click="$router.back()">Batal</AppButton>
           <AppButton type="submit" size="lg" :disabled="isSubmitting">
             <span v-if="isSubmitting" class="flex items-center gap-2">
               <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
               </svg>
               Menyimpan...
@@ -328,13 +252,3 @@ async function submit() {
     </div>
   </form>
 </template>
-
-<style scoped>
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-}
-input[type='number'] {
-  -moz-appearance: textfield;
-}
-</style>

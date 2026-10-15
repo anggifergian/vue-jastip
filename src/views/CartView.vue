@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ShoppingCart, ShoppingBag, ChevronUp } from '@lucide/vue'
+import { ShoppingCart, ShoppingBag, MessageCircle } from '@lucide/vue'
 import { useCartStore } from '@/stores/cart'
 import CartItemRow from '@/components/cart/CartItemRow.vue'
 import CartOverview from '@/components/cart/CartOverview.vue'
-import CartBottomSheet from '@/components/cart/CartBottomSheet.vue'
 import AppContainer from '@/components/layout/AppContainer.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import { waLink, buildCartMessage } from '@/lib/whatsapp'
 
 const cartStore = useCartStore()
-const isSheetOpen = ref(false)
+
+const cartWaLink = computed(() => waLink(buildCartMessage(cartStore.items)))
 </script>
 
 <template>
@@ -87,43 +88,30 @@ const isSheetOpen = ref(false)
   <Transition name="bottom-bar">
     <div
       v-if="cartStore.items.length > 0"
-      class="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3 z-30 shadow-xl"
+      class="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-3 pb-3 pb-safe z-30 shadow-xl"
     >
       <div class="flex items-center justify-between gap-4">
         <div>
           <p class="text-xs text-muted-foreground">Daftar Titipan</p>
-          <p class="text-base font-bold">
-            {{ cartStore.totalItems }} item
-          </p>
+          <p class="text-base font-bold">{{ cartStore.totalItems }} item</p>
         </div>
-        <AppButton @click="isSheetOpen = true">
-          <ChevronUp :size="16" />
-          Kirim Request
-        </AppButton>
+        <a :href="cartWaLink" target="_blank" rel="noopener noreferrer">
+          <AppButton>
+            <MessageCircle :size="16" />
+            Kirim via WhatsApp
+          </AppButton>
+        </a>
       </div>
     </div>
   </Transition>
 
-  <!-- Mobile: slide-up bottom sheet -->
-  <CartBottomSheet :is-open="isSheetOpen" @close="isSheetOpen = false" />
 </template>
 
 <style scoped>
-.page-enter {
-  animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
 .count-swap-enter-active { transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
 .count-swap-leave-active { transition: opacity 0.1s ease; position: absolute; }
 .count-swap-enter-from { opacity: 0; transform: translateY(-4px); }
 .count-swap-leave-to  { opacity: 0; }
-
-.content-fade-enter-active {
-  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.content-fade-leave-active { transition: opacity 0.2s ease; }
-.content-fade-enter-from { opacity: 0; transform: translateY(12px); }
-.content-fade-leave-to  { opacity: 0; }
 
 .cart-item-enter-active {
   transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
@@ -152,9 +140,4 @@ const isSheetOpen = ref(false)
 .bottom-bar-leave-active { transition: transform 0.2s ease, opacity 0.2s ease; }
 .bottom-bar-enter-from { transform: translateY(100%); opacity: 0; }
 .bottom-bar-leave-to  { transform: translateY(100%); opacity: 0; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 </style>

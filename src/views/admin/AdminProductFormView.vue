@@ -67,20 +67,3 @@ function addAnother() {
   </AppContainer>
 </template>
 
-<style scoped>
-.content-fade-enter-active {
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.content-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.content-fade-enter-from {
-  opacity: 0;
-  transform: translateY(12px);
-}
-.content-fade-leave-to {
-  opacity: 0;
-}
-</style>

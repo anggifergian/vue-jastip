@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { Plus, Minus, Trash2, AlertCircle, StickyNote } from '@lucide/vue'
 import { useCartStore } from '@/stores/cart'
 import type { CartItem } from '@/types'
+import { features } from '@/lib/features'
 
 const props = defineProps<{ item: CartItem }>()
 
@@ -11,13 +12,7 @@ const confirmingRemove = ref(false)
 const editingNotes = ref(false)
 const localNotes = ref(props.item.notes ?? '')
 
-const formattedPrice = computed(() =>
-  new Intl.NumberFormat(props.item.currency === 'JPY' ? 'ja-JP' : 'ko-KR', {
-    style: 'currency',
-    currency: props.item.currency,
-    minimumFractionDigits: 0,
-  }).format(props.item.price),
-)
+const formattedPrice = computed(() => props.item.price.formattedValue)
 
 function saveNotes() {
   cartStore.updateNotes(props.item.id, localNotes.value)
@@ -38,7 +33,7 @@ function doRemove() {
   <div class="flex gap-4 py-4">
     <!-- Image -->
     <img
-      :src="item.image"
+      :src="item.images[0]?.url ?? ''"
       :alt="item.name"
       class="w-20 h-20 lg:w-24 lg:h-24 rounded-xl object-cover shrink-0 bg-gray-50"
     />
@@ -51,7 +46,7 @@ function doRemove() {
             {{ item.name }}
           </p>
           <p class="text-xs text-gray-400 mt-0.5">
-            {{ item.origin === 'Japan' ? '🇯🇵' : '🇰🇷' }} {{ item.origin }}
+            {{ item.country }}
           </p>
           <p class="text-xs text-gray-500 mt-1">{{ formattedPrice }} / item</p>
         </div>
@@ -90,6 +85,7 @@ function doRemove() {
 
         <!-- Notes toggle -->
         <button
+          v-if="features.cartNotes"
           @click="editingNotes = !editingNotes; localNotes = item.notes ?? ''"
           class="flex items-center gap-1 text-xs transition-colors"
           :class="item.notes ? 'text-primary' : 'text-gray-400 hover:text-primary'"
@@ -101,7 +97,7 @@ function doRemove() {
 
       <!-- Notes editor -->
       <Transition name="notes-expand">
-        <div v-if="editingNotes" class="mt-3">
+        <div v-if="features.cartNotes && editingNotes" class="mt-3">
           <textarea
             v-model="localNotes"
             rows="2"
@@ -128,7 +124,7 @@ function doRemove() {
 
       <!-- Saved notes display -->
       <p
-        v-if="!editingNotes && item.notes"
+        v-if="features.cartNotes && !editingNotes && item.notes"
         class="mt-2 text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 leading-relaxed"
       >
         {{ item.notes }}

@@ -13,7 +13,7 @@ const emit = defineEmits<{
 
 <template>
   <div>
-    <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Kategori</p>
+    <p class="text-xs font-semibold text-gray-400 uppercase mb-3">Kategori</p>
     <ul class="space-y-0.5">
       <li>
         <button

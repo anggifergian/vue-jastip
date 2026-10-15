@@ -2,6 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { MessageCircle, Phone, MapPin } from '@lucide/vue'
 import AppContainer from '@/components/layout/AppContainer.vue'
+import { waLink } from '@/lib/whatsapp'
 </script>
 
 <template>
@@ -10,7 +11,7 @@ import AppContainer from '@/components/layout/AppContainer.vue'
     <div class="border-b border-gray-800">
       <AppContainer spacing="py-8">
         <div class="bg-gray-800 rounded-2xl p-5 lg:p-6">
-          <h3 class="text-sm font-semibold text-white mb-3 uppercase tracking-wider">
+          <h3 class="text-sm font-semibold text-white mb-3 uppercase">
             Informasi Penting / Important Notes
           </h3>
           <p class="text-sm text-gray-400 leading-relaxed mb-3">
@@ -36,7 +37,7 @@ import AppContainer from '@/components/layout/AppContainer.vue'
             </li>
           </ul>
           <p class="text-xs text-gray-500">
-            ⚡ Nilai tukar mengacu pada kurs tengah BI +5% pada tanggal pembelian. Harga dapat berubah
+            ⚡ Nilai tukar mengacu pada kurs tengah BI pada tanggal pembelian. Harga dapat berubah
             mengikuti fluktuasi kurs.
           </p>
         </div>
@@ -48,7 +49,7 @@ import AppContainer from '@/components/layout/AppContainer.vue'
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <!-- Brand -->
         <div>
-          <h2 class="font-bold text-2xl text-white tracking-tight mb-3">JastipKu</h2>
+          <h2 class="font-bold text-2xl text-white tracking-tight mb-3">JastipYuna</h2>
           <p class="text-sm text-gray-400 leading-relaxed">
             Layanan jasa titip terpercaya dari Jepang dan Korea langsung ke pintu rumah Anda.
             Produk asli, pengiriman aman.
@@ -57,7 +58,7 @@ import AppContainer from '@/components/layout/AppContainer.vue'
 
         <!-- Quick links -->
         <div>
-          <h4 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Quick Links</h4>
+          <h4 class="text-sm font-semibold text-white mb-4 uppercase">Quick Links</h4>
           <ul class="space-y-2 text-sm">
             <li>
               <RouterLink to="/" class="text-gray-400 hover:text-white transition-colors">Home</RouterLink>
@@ -79,11 +80,11 @@ import AppContainer from '@/components/layout/AppContainer.vue'
 
         <!-- Contact -->
         <div>
-          <h4 class="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Contact Us</h4>
+          <h4 class="text-sm font-semibold text-white mb-4 uppercase">Contact Us</h4>
           <ul class="space-y-3 text-sm">
             <li class="flex items-center gap-3 text-gray-400">
               <MessageCircle :size="16" class="text-green-400 shrink-0" />
-              <a href="https://wa.me/628123456789" class="hover:text-white transition-colors">
+              <a :href="waLink()" class="hover:text-white transition-colors">
                 WhatsApp: +62 812-3456-789
               </a>
             </li>
@@ -100,7 +101,7 @@ import AppContainer from '@/components/layout/AppContainer.vue'
       </div>
 
       <div class="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
-        <p>© {{ new Date().getFullYear() }} JastipKu. All rights reserved.</p>
+        <p>© {{ new Date().getFullYear() }} JastipYuna. All rights reserved.</p>
         <div class="flex gap-4">
           <a href="#" class="hover:text-gray-400 transition-colors">Privacy Policy</a>
           <a href="#" class="hover:text-gray-400 transition-colors">Terms & Conditions</a>

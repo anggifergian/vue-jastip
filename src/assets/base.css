@@ -81,6 +81,38 @@
   --radius-2xl: calc(var(--radius) + 1rem);
 }
 
+/* ─── Global transitions ─────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.content-fade-enter-active {
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.content-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.content-fade-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.content-fade-leave-to {
+  opacity: 0;
+}
+
+/* ─── Safe area tokens ───────────────────────────────────────────────────── */
+:root {
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+}
+
 /* ─── Base reset ────────────────────────────────────────────────────────── */
 @layer base {
   *,
@@ -90,8 +122,22 @@
     margin: 0;
   }
 
+  html {
+    /* iOS Safari: make full-screen layouts reliable */
+    height: -webkit-fill-available;
+    /* Prevent the rubber-band bounce at document level */
+    overscroll-behavior-y: none;
+    /* Respect text size preferences; don't let Safari upscale text on rotation */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
+    /* dvh = dynamic viewport height — shrinks when the iOS toolbar is visible.
+       Falls back to -webkit-fill-available → 100vh for older browsers. */
     min-height: 100vh;
+    min-height: -webkit-fill-available;
+    min-height: 100dvh;
     background-color: var(--background);
     color: var(--foreground);
     font-family:
@@ -104,5 +150,72 @@
     font-size: 15px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── iOS Safari: form control normalisation ─────────────────────────────
+   These rules live OUTSIDE @layer so they override Tailwind utility classes
+   (layered CSS < unlayered CSS in the cascade).
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* 1. Prevent auto-zoom on focus (iOS zooms when font-size < 16px) */
+input,
+textarea,
+select {
+  font-size: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* 2. Remove iOS button chrome and kill the 300 ms tap delay */
+button,
+[role='button'],
+[type='button'],
+[type='reset'],
+[type='submit'],
+label {
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+}
+
+/* 3. Momentum scrolling + contain bounce inside sheets / modals.
+      Applied to any overflow-y-auto or overflow-y-scroll element. */
+.overflow-y-auto,
+.overflow-y-scroll,
+[style*='overflow-y: auto'],
+[style*='overflow-y: scroll'] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ─── Safe-area utility classes ──────────────────────────────────────────
+   Use these on fixed/sticky elements that sit at the edges of the screen.
+   Example: <div class="fixed bottom-0 pb-safe"> … </div>
+   ─────────────────────────────────────────────────────────────────────── */
+.pt-safe  { padding-top:    var(--safe-top); }
+.pr-safe  { padding-right:  var(--safe-right); }
+.pb-safe  { padding-bottom: var(--safe-bottom); }
+.pl-safe  { padding-left:   var(--safe-left); }
+
+.mt-safe  { margin-top:    var(--safe-top); }
+.mb-safe  { margin-bottom: var(--safe-bottom); }
+
+/* Combine: full-bleed fixed bars at the bottom of the screen */
+.inset-x-safe {
+  padding-left:  var(--safe-left);
+  padding-right: var(--safe-right);
+}
+
+/* Nav-height-aware top padding for the page content that sits below the fixed
+   navbar. The nav inner area is h-14 (3.5rem) on mobile, h-16 (4rem) on desktop.
+   Adding --safe-top accounts for the notch on iOS devices. */
+.pt-nav {
+  padding-top: calc(3.5rem + var(--safe-top));
+}
+
+@media (min-width: 1024px) {
+  .pt-nav {
+    padding-top: calc(4rem + var(--safe-top));
   }
 }

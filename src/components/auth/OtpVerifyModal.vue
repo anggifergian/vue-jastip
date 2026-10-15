@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
 import { X, Mail, RotateCcw, Loader2, CheckCircle2 } from '@lucide/vue'
-import { supabase } from '@/lib/supabase'
 
 const props = defineProps<{
   modelValue: boolean
   email: string
   resendFn: () => Promise<void>
+  verifyFn: (otp: string) => Promise<void>
 }>()
 
 const emit = defineEmits<{
@@ -114,20 +114,17 @@ async function verify() {
   isVerifying.value = true
   verifyError.value = ''
 
-  const { error } = await supabase.auth.verifyOtp({
-    email: props.email,
-    token: otp.value,
-    type: 'email',
-  })
-
-  isVerifying.value = false
-
-  if (error) {
+  try {
+    await props.verifyFn(otp.value)
+  } catch {
+    isVerifying.value = false
     verifyError.value = 'Kode OTP tidak valid atau sudah kedaluwarsa.'
     digits.value = Array(6).fill('')
     nextTick(() => inputRefs.value[0]?.focus())
     return
   }
+
+  isVerifying.value = false
 
   isDone.value = true
   setTimeout(() => {

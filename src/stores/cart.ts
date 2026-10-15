@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import type { Product, CartItem } from '@/types'
+import type { CartItem } from '@/types'
+import type { CatalogProduct } from '@/services/catalog'
 
 const STORAGE_KEY = 'jastipku-cart'
 
@@ -8,8 +9,7 @@ function loadFromStorage(): CartItem[] {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY)
     const items: CartItem[] = raw ? JSON.parse(raw) : []
-    // Drop items saved before the currency refactor (no currency field)
-    return items.filter((item) => item.currency === 'JPY' || item.currency === 'KRW')
+    return items.filter((item) => item.id && item.quantity)
   } catch {
     return []
   }
@@ -28,7 +28,7 @@ export const useCartStore = defineStore('cart', () => {
     { deep: true },
   )
 
-  function addItem(product: Product) {
+  function addItem(product: CatalogProduct) {
     const existing = items.value.find((i) => i.id === product.id)
     if (existing) {
       existing.quantity++

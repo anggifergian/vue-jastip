@@ -41,7 +41,7 @@ function checkOrder() {
     <div class="max-w-md mx-auto">
 
       <!-- Title -->
-      <div class="mb-8 text-center">
+      <div class="mb-8 text-center page-enter">
         <h1 class="text-2xl font-bold tracking-tight">Cek Status Pesanan</h1>
       </div>
 

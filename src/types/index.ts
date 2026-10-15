@@ -26,7 +26,15 @@ export interface Product {
   badge?: string
 }
 
-export interface CartItem extends Product {
+export interface CartItem {
+  id: string
+  slug: string
+  name: string
+  price: { formattedValue: string; currencyIso: string }
+  currency: string
+  country: string
+  availability: { status: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'; remaining: string }
+  images: { url: string; altText: string | null; imageType: string }[]
   quantity: number
   notes?: string
 }

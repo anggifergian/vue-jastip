@@ -44,6 +44,15 @@ async function resend() {
   if (error) throw error
 }
 
+async function loginVerifyFn(otp: string) {
+  const { error } = await supabase.auth.verifyOtp({
+    email: email.value.trim(),
+    token: otp,
+    type: 'email',
+  })
+  if (error) throw error
+}
+
 function onVerified() {
   router.replace({ name: 'admin-product-new' })
 }
@@ -113,6 +122,6 @@ function onVerified() {
       </div>
     </div>
 
-    <OtpVerifyModal v-model="showOtp" :email="email.trim()" :resend-fn="resend" @verified="onVerified" />
+    <OtpVerifyModal v-model="showOtp" :email="email.trim()" :resend-fn="resend" :verify-fn="loginVerifyFn" @verified="onVerified" />
   </div>
 </template>

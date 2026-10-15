@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import CatalogView from '../views/CatalogView.vue'
 import CartView from '../views/CartView.vue'
 import ProductDetailView from '../views/ProductDetailView.vue'
+import CheckoutView from '../views/CheckoutView.vue'
 import { supabase } from '@/lib/supabase'
 
 const router = createRouter({
@@ -30,9 +31,19 @@ const router = createRouter({
       component: () => import('../views/OrdersView.vue'),
     },
     {
-      path: '/product/:id',
+      path: '/product/:slug',
       name: 'product-detail',
       component: ProductDetailView,
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: CheckoutView,
+    },
+    {
+      path: '/orders/confirmation/:orderNumber',
+      name: 'order-confirmation',
+      component: () => import('../views/OrderConfirmationView.vue'),
     },
     {
       path: '/login',

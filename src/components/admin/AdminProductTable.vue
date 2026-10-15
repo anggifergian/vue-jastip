@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Globe, ImageIcon, RefreshCw, Trash2, Archive, Pencil, Eye, MoreHorizontal } from '@lucide/vue'
+import {
+  Globe,
+  ImageIcon,
+  RefreshCw,
+  Trash2,
+  Archive,
+  Pencil,
+  Eye,
+  MoreHorizontal,
+} from '@lucide/vue'
 import { AxiosError } from 'axios'
 import Swal from 'sweetalert2'
 import { publishProduct, deleteProduct, archiveProduct } from '@/services/admin/product'
@@ -79,11 +88,13 @@ function formatPrice(price: number) {
   }).format(price)
 }
 
-function formatDate(ts: number) {
+function formatDate(ts: string) {
   return new Intl.DateTimeFormat('id-ID', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(new Date(ts))
 }
 
@@ -109,7 +120,9 @@ async function handleDeleteAction(product: AdminProduct) {
     await deleteProduct(product.id)
     emit('delete', product)
   } catch (err: unknown) {
-    const msg = (err instanceof AxiosError ? err.response?.data?.error : undefined) ?? 'Gagal menghapus produk. Coba lagi.'
+    const msg =
+      (err instanceof AxiosError ? err.response?.data?.error : undefined) ??
+      'Gagal menghapus produk. Coba lagi.'
     Swal.fire({ icon: 'error', title: 'Gagal hapus', text: msg })
   } finally {
     const next = new Set(deletingIds.value)
@@ -135,7 +148,9 @@ async function handleArchiveAction(product: AdminProduct) {
     await archiveProduct(product.id)
     emit('archived', product)
   } catch (err: unknown) {
-    const msg = (err instanceof AxiosError ? err.response?.data?.error : undefined) ?? 'Gagal mengarsipkan produk. Coba lagi.'
+    const msg =
+      (err instanceof AxiosError ? err.response?.data?.error : undefined) ??
+      'Gagal mengarsipkan produk. Coba lagi.'
     Swal.fire({ icon: 'error', title: 'Gagal arsipkan', text: msg })
   } finally {
     const next = new Set(archivingIds.value)
@@ -150,14 +165,14 @@ async function handleArchiveAction(product: AdminProduct) {
     <table class="w-full text-sm">
       <thead>
         <tr
-          class="border-b border-gray-100 bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-400"
+          class="border-b border-gray-100 bg-gray-50 text-left text-xs font-semibold uppercase text-gray-400"
         >
           <th class="px-4 py-3 w-16">Foto</th>
           <th class="px-4 py-3">Produk</th>
           <th class="px-4 py-3 hidden md:table-cell">Kategori</th>
           <th class="px-4 py-3 hidden sm:table-cell">Harga</th>
           <th class="px-4 py-3 hidden lg:table-cell">Stok</th>
-          <th class="px-4 py-3 hidden lg:table-cell">Dibuat</th>
+          <th class="px-4 py-3 hidden lg:table-cell">Update</th>
           <th class="px-4 py-3 text-right">Aksi</th>
         </tr>
       </thead>
@@ -197,7 +212,9 @@ async function handleArchiveAction(product: AdminProduct) {
             >
               {{ product.name }}
             </p>
-            <p class="text-xs text-gray-400 mt-0.5 sm:hidden">{{ formatPrice(product.price) }}</p>
+            <p class="text-xs text-gray-400 mt-0.5 sm:hidden">
+              {{ formatPrice(product.original_price) }}
+            </p>
           </td>
 
           <!-- Category -->
@@ -207,7 +224,7 @@ async function handleArchiveAction(product: AdminProduct) {
 
           <!-- Price -->
           <td class="px-4 py-3 hidden sm:table-cell font-medium text-gray-800">
-            {{ formatPrice(product.price) }}
+            {{ formatPrice(product.original_price) }}
           </td>
 
           <!-- Stock -->
@@ -217,7 +234,7 @@ async function handleArchiveAction(product: AdminProduct) {
 
           <!-- Created -->
           <td class="px-4 py-3 hidden lg:table-cell text-gray-400 text-xs whitespace-nowrap">
-            {{ formatDate(product.created_at) }}
+            {{ formatDate(product.updated_at ?? product.created_at) }}
           </td>
 
           <!-- Actions -->
@@ -314,15 +331,29 @@ async function handleArchiveAction(product: AdminProduct) {
       }
     "
     @published="(p) => emit('published', p)"
-    @delete="(p) => { isDetailOpen = false; emit('delete', p) }"
-    @archived="(p) => { isDetailOpen = false; emit('archived', p) }"
+    @delete="
+      (p) => {
+        isDetailOpen = false
+        emit('delete', p)
+      }
+    "
+    @archived="
+      (p) => {
+        isDetailOpen = false
+        emit('archived', p)
+      }
+    "
   />
 
   <AdminProductActionSheet
     :open="isActionSheetOpen"
     :product="actionSheetProduct"
     @close="closeActionSheet"
-    @view="(p) => { onDetailView(p.id) }"
+    @view="
+      (p) => {
+        onDetailView(p.id)
+      }
+    "
     @published="(p) => emit('published', p)"
     @delete="(p) => emit('delete', p)"
     @archived="(p) => emit('archived', p)"

@@ -126,9 +126,9 @@ const formattedPrice = computed(() => {
   if (!product.value) return ''
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
-    currency: 'JPY',
+    currency: product.value.currency ?? 'JPY',
     minimumFractionDigits: 0,
-  }).format(product.value.price)
+  }).format(product.value.original_price)
 })
 
 const STATUS_STYLE: Record<string, string> = {

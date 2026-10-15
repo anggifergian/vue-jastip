@@ -115,7 +115,7 @@ async function handleSignOut() {
 
         <div v-if="session" class="border-t border-border pt-3 mt-2">
           <p
-            class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+            class="px-3 mb-1 text-[10px] font-semibold uppercase text-muted-foreground"
           >
             Admin
           </p>

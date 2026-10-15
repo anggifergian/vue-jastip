@@ -179,13 +179,6 @@ const gridKey = computed(() => `products-${selectedCategory.value}`)
   animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.content-fade-enter-active {
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.content-fade-leave-active { transition: opacity 0.18s ease; }
-.content-fade-enter-from { opacity: 0; transform: translateY(10px); }
-.content-fade-leave-to  { opacity: 0; }
-
 .card-enter-active {
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: calc(var(--i, 0) * 35ms);

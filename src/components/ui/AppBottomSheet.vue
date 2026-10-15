@@ -21,6 +21,7 @@ watch(
     document.body.style.overflow = val ? 'hidden' : ''
   },
 )
+
 </script>
 
 <template>
@@ -37,7 +38,7 @@ watch(
     <Transition name="sheet-up">
       <div
         v-if="open"
-        class="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-xl"
+        class="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-xl pb-safe"
         :class="[hiddenClass, panelClass]"
       >
         <div class="flex justify-center pt-3 pb-1">

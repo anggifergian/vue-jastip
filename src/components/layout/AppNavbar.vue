@@ -22,7 +22,7 @@ async function handleSignOut() {
 <template>
   <!-- Desktop navbar -->
   <nav
-    class="hidden lg:flex fixed top-0 left-0 right-0 z-40 bg-background border-b border-border items-center"
+    class="hidden lg:flex fixed top-0 left-0 right-0 z-40 bg-background border-b border-border items-center pt-safe"
   >
     <div class="w-full md:max-w-7xl mx-auto px-8 h-16 flex items-center justify-between">
       <!-- Logo -->
@@ -75,7 +75,7 @@ async function handleSignOut() {
   </nav>
 
   <!-- Mobile top navbar -->
-  <nav class="lg:hidden fixed top-0 left-0 right-0 z-40 bg-background border-b border-border">
+  <nav class="lg:hidden fixed top-0 left-0 right-0 z-40 bg-background border-b border-border pt-safe">
     <div class="flex items-center justify-between px-4 h-14">
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center gap-2 shrink-0">

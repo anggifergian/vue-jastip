@@ -2,9 +2,10 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { ArrowRight, ShoppingCart, Plus, Minus, Trash2, Package } from '@lucide/vue'
-import { fetchProduct } from '@/services/catalog'
+import { ArrowRight, ShoppingCart, Plus, Minus, Trash2, Package, MessageCircle } from '@lucide/vue'
+import { fetchProductBySlug } from '@/services/catalog'
 import { useCartStore } from '@/stores/cart'
+import { waLink } from '@/lib/whatsapp'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppContainer from '@/components/layout/AppContainer.vue'
 import ProductImageGallery from '@/components/product/ProductImageGallery.vue'
@@ -14,44 +15,36 @@ const route = useRoute()
 const router = useRouter()
 const cartStore = useCartStore()
 
-const id = computed(() => route.params.id as string)
+const slug = computed(() => route.params.slug as string)
 
 const { data: product, isLoading, isError } = useQuery({
-  queryKey: computed(() => ['product', id.value]),
-  queryFn: () => fetchProduct(id.value),
+  queryKey: computed(() => ['product', slug.value]),
+  queryFn: () => fetchProductBySlug(slug.value),
+  staleTime: 5 * 60 * 1000,
 })
 
+const isAvailable = computed(() => product.value?.availability.status !== 'OUT_OF_STOCK')
+const isLowStock = computed(() => product.value?.availability.status === 'LOW_STOCK')
 const qty = computed(() => (product.value ? cartStore.getQuantity(product.value.id) : 0))
 
-const formattedPrice = computed(() => {
-  if (!product.value) return ''
-  return new Intl.NumberFormat(product.value.currency === 'JPY' ? 'ja-JP' : 'ko-KR', {
-    style: 'currency',
-    currency: product.value.currency,
-    minimumFractionDigits: 0,
-  }).format(product.value.price)
+const productWaLink = computed(() => {
+  if (!product.value) return waLink()
+  const msg = `Halo Yuna, saya tertarik dengan produk *${product.value.name}* tapi stoknya habis. Apakah ada restok?`
+  return waLink(msg)
 })
-
-const badgeColors: Record<string, string> = {
-  'Best Seller': 'bg-amber-100 text-amber-700',
-  New: 'bg-green-100 text-green-700',
-  Limited: 'bg-rose-100 text-rose-700',
-}
 
 const galleryImages = computed(() => {
   if (!product.value) return []
-  return product.value.images?.length
-    ? product.value.images
-    : [{ url: product.value.image, alt: product.value.name }]
+  return product.value.images.map((img) => ({ url: img.url, alt: img.altText ?? undefined }))
 })
 </script>
 
 <template>
-  <AppContainer spacing="py-6 lg:py-10 pb-28 lg:pb-10">
+  <AppContainer spacing="py-6 lg:py-10 pb-24 lg:pb-10">
     <!-- Back -->
     <button
       @click="router.back()"
-      class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6"
+      class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-4"
     >
       <ArrowRight :size="14" class="rotate-180" />
       Back
@@ -85,29 +78,18 @@ const galleryImages = computed(() => {
       <div v-else key="product" class="lg:grid lg:grid-cols-2 lg:gap-12">
 
         <!-- Image gallery -->
-        <div class="mb-6 lg:mb-0 img-reveal">
-          <ProductImageGallery :images="galleryImages" :in-stock="product.inStock" />
+        <div class="mb-6 lg:mb-0 img-reveal" :class="!isAvailable && 'grayscale opacity-60'">
+          <ProductImageGallery :images="galleryImages" :in-stock="isAvailable" />
         </div>
 
         <!-- Details -->
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-3">
 
-          <!-- Badges: i=0 -->
+          <!-- Origin: i=0 -->
           <div class="detail-stagger" style="--i: 0">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span
-                v-if="product.badge"
-                :class="cn(
-                  'text-xs font-semibold px-2.5 py-1 rounded-full',
-                  badgeColors[product.badge] ?? 'bg-accent text-accent-foreground',
-                )"
-              >
-                {{ product.badge }}
-              </span>
-              <span class="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
-                {{ product.origin === 'Japan' ? '🇯🇵' : '🇰🇷' }} {{ product.origin }}
-              </span>
-            </div>
+            <span class="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
+              {{ product.country }}
+            </span>
           </div>
 
           <!-- Name: i=1 -->
@@ -115,15 +97,32 @@ const galleryImages = computed(() => {
             <h1 class="text-xl lg:text-2xl font-bold leading-snug">
               {{ product.name }}
             </h1>
+            <div class="flex items-center gap-2 mt-1.5">
+              <span
+                v-if="product.availability.status === 'IN_STOCK'"
+                class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full"
+              >
+                Tersedia
+              </span>
+              <span
+                v-else-if="isLowStock"
+                class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full"
+              >
+                Sisa {{ Number(product.availability.remaining) }} item
+              </span>
+              <span
+                v-else
+                class="text-xs font-medium text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full"
+              >
+                Stok Habis
+              </span>
+            </div>
           </div>
 
           <!-- Price: i=2 -->
           <div class="detail-stagger" style="--i: 2">
             <div>
-              <p class="text-2xl font-bold text-primary">{{ formattedPrice }}</p>
-              <p class="text-xs text-muted-foreground mt-1">
-                Harga di toko asal · Harga final dikonfirmasi via invoice
-              </p>
+              <p class="text-2xl font-bold text-primary">{{ product.price.formattedValue }}</p>
             </div>
           </div>
 
@@ -132,18 +131,9 @@ const galleryImages = computed(() => {
             <p class="text-sm text-muted-foreground leading-relaxed">{{ product.description }}</p>
           </div>
 
-          <!-- Meta: i=4 -->
-          <div class="detail-stagger" style="--i: 4">
-            <div class="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>⚖️ {{ product.weight }}g</span>
-              <span class="text-border">|</span>
-              <span>📦 Est. 7–21 hari kerja</span>
-            </div>
-          </div>
-
-          <!-- CTA desktop only: i=5 -->
-          <div class="hidden lg:block detail-stagger border-t border-border pt-4 mt-auto" style="--i: 5">
-            <div v-if="product.inStock">
+          <!-- CTA desktop only: i=4 -->
+          <div class="hidden lg:block detail-stagger border-t border-border pt-4 mt-auto" style="--i: 4">
+            <div v-if="isAvailable">
               <Transition name="cart-swap" mode="out-in">
                 <AppButton
                   v-if="qty === 0"
@@ -182,10 +172,12 @@ const galleryImages = computed(() => {
                 </div>
               </Transition>
             </div>
-
-            <p v-else class="text-sm text-muted-foreground text-center py-2">
-              Produk ini sedang tidak tersedia
-            </p>
+            <a v-else :href="productWaLink" target="_blank" rel="noopener noreferrer">
+              <AppButton size="lg" class="w-full">
+                <MessageCircle :size="18" />
+                Hubungi Yuna
+              </AppButton>
+            </a>
           </div>
 
         </div>
@@ -197,9 +189,15 @@ const galleryImages = computed(() => {
   <Teleport to="body">
     <div
       v-if="product && !isLoading"
-      class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border px-4 py-3"
+      class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border px-4 pt-3 pb-3 pb-safe"
     >
-      <div v-if="product.inStock">
+      <a v-if="!isAvailable" :href="productWaLink" target="_blank" rel="noopener noreferrer">
+        <AppButton size="lg" class="w-full">
+          <MessageCircle :size="18" />
+          Hubungi Yuna
+        </AppButton>
+      </a>
+      <div v-else>
         <Transition name="cart-swap" mode="out-in">
           <AppButton
             v-if="qty === 0"
@@ -238,12 +236,9 @@ const galleryImages = computed(() => {
           </div>
         </Transition>
       </div>
-
-      <p v-else class="text-sm text-muted-foreground text-center py-1">
-        Produk ini sedang tidak tersedia
-      </p>
     </div>
   </Teleport>
+
 </template>
 
 <style scoped>

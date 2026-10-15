@@ -1,71 +1,40 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import type { Product } from '@/types'
+import type { CatalogProduct } from '@/services/catalog'
 import { cn } from '@/lib/utils'
 
-const props = defineProps<{ product: Product }>()
+const props = defineProps<{ product: CatalogProduct }>()
 
-const formattedPrice = computed(() =>
-  new Intl.NumberFormat(props.product.currency === 'JPY' ? 'ja-JP' : 'ko-KR', {
-    style: 'currency',
-    currency: props.product.currency,
-    minimumFractionDigits: 0,
-  }).format(props.product.price),
+const isAvailable = computed(() => props.product.availability.status !== 'OUT_OF_STOCK')
+const isLowStock = computed(() => props.product.availability.status === 'LOW_STOCK')
+
+const primaryImage = computed(
+  () => props.product.images.find((img) => img.imageType === 'PRIMARY') ?? props.product.images[0],
 )
-
-const badgeColors: Record<string, string> = {
-  'Best Seller': 'bg-amber-100 text-amber-700',
-  New: 'bg-green-100 text-green-700',
-  Limited: 'bg-rose-100 text-rose-700',
-}
 </script>
 
 <template>
-  <component
-    :is="product.inStock ? RouterLink : 'div'"
-    :to="product.inStock ? `/product/${product.id}` : undefined"
-    :class="
-      cn(
-        'group flex flex-col h-full overflow-hidden rounded-lg border border-gray-200 bg-background transition-transform duration-200',
-        product.inStock ? 'hover:-translate-y-1 hover:shadow-xs' : 'cursor-not-allowed',
-      )
-    "
+  <RouterLink
+    :to="`/product/${product.slug}`"
+    class="group flex flex-col h-full overflow-hidden rounded-lg border border-gray-200 bg-background transition-transform duration-200 hover:-translate-y-1 hover:shadow-xs"
   >
     <!-- Image -->
     <div
-      :class="
-        cn(
-          'relative h-44 md:h-52 overflow-hidden bg-gray-100',
-          !product.inStock && 'grayscale opacity-50',
-        )
-      "
+      class="relative h-44 md:h-52 overflow-hidden bg-gray-100"
+      :class="!isAvailable && 'grayscale opacity-50'"
     >
       <img
-        :src="product.image"
-        :alt="product.name"
+        v-if="primaryImage"
+        :src="primaryImage.url"
+        :alt="primaryImage.altText ?? product.name"
         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         loading="lazy"
       />
+      <div v-else class="w-full h-full bg-gray-100" />
+
       <span
-        v-if="product.badge && product.inStock"
-        :class="
-          cn(
-            'absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-full',
-            badgeColors[product.badge] ?? 'bg-accent text-accent-foreground',
-          )
-        "
-      >
-        {{ product.badge }}
-      </span>
-      <span
-        v-if="product.inStock"
-        class="absolute top-2 right-2 text-xs font-medium bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full text-gray-600"
-      >
-        {{ product.origin === 'Japan' ? '🇯🇵' : '🇰🇷' }}
-      </span>
-      <span
-        v-if="!product.inStock"
+        v-if="!isAvailable"
         class="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-200 text-gray-500"
       >
         Stok Habis
@@ -73,17 +42,24 @@ const badgeColors: Record<string, string> = {
     </div>
 
     <!-- Info -->
-    <div :class="cn('flex flex-col gap-1 px-3 py-2.5 flex-1', !product.inStock && 'opacity-40')">
-      <p class="text-sm leading-snug line-clamp-2">
+    <div class="flex flex-col gap-1 px-3 py-2.5 flex-1">
+      <p class="text-sm leading-snug line-clamp-2 text-secondary-foreground">
         {{ product.name }}
       </p>
+
+      <!-- Availability status -->
+      <p v-if="isLowStock" class="text-[11px] font-medium text-amber-600">
+        Sisa {{ Number(product.availability.remaining) }} item
+      </p>
+      <p v-else-if="!isAvailable" class="text-[11px] font-medium text-rose-500">
+        Tidak tersedia
+      </p>
+
       <p
-        :class="
-          cn('text-sm font-bold mt-0.5', product.inStock ? 'text-primary' : 'text-muted-foreground')
-        "
+        class="text-lg font-bold mt-0.5 text-primary"
       >
-        {{ formattedPrice }}
+        {{ product.price.formattedValue }}
       </p>
     </div>
-  </component>
+  </RouterLink>
 </template>
