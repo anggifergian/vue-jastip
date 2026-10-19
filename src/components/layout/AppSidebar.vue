@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { X, Home, ShoppingBag, ShoppingCart, Grid3X3, Package, ClipboardList, LogOut } from '@lucide/vue'
+import {
+  X,
+  Home,
+  ShoppingBag,
+  ShoppingCart,
+  Grid3X3,
+  Package,
+  ClipboardList,
+  LogOut,
+} from '@lucide/vue'
 import { useCartStore } from '@/stores/cart'
 import { useAuth } from '@/composables/useAuth'
 import { useRouter } from 'vue-router'
@@ -75,7 +84,7 @@ async function handleSignOut() {
         <RouterLink
           to="/orders"
           @click="emit('close')"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-md text-muted-foreground hover:bg-accent hover:text-primary transition-colors"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-md text-muted-foreground hover:bg-accent hover:text-primary transition-colors hidden"
           active-class="bg-accent text-primary font-semibold"
         >
           <Package :size="18" />
@@ -114,11 +123,7 @@ async function handleSignOut() {
         </div>
 
         <div v-if="session" class="border-t border-border pt-3 mt-2">
-          <p
-            class="px-3 mb-1 text-[10px] font-semibold uppercase text-muted-foreground"
-          >
-            Admin
-          </p>
+          <p class="px-3 mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Admin</p>
           <RouterLink
             to="/admin/orders"
             @click="emit('close')"

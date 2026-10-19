@@ -49,24 +49,24 @@ function doRemove() {
         <div class="min-w-0">
           <RouterLink
             :to="`/product/${item.slug}`"
-            class="text-xs md:text-sm text-gray-800 leading-snug line-clamp-2 hover:text-primary transition-colors"
+            class="text-xs md:text-sm text-gray-900 leading-snug line-clamp-2 hover:text-primary transition-colors"
           >
             {{ item.name }}
           </RouterLink>
 
           <div class="mt-2 flex items-end justify-between">
             <div>
-              <p class="text-sm md:text-base font-semibold text-gray-800">
+              <p class="text-base font-semibold text-gray-900">
                 {{ item.price.formattedValue }}
               </p>
-              <div class="text-neutral-600 flex items-center gap-0.5 mt-1">
+              <div class="text-neutral-600 flex items-center gap-0.5 mt-0.5 md:mt-1">
                 <span class="text-[10px] md:text-xs">&asymp;</span>
-                <p class="text-xs md:text-sm">{{ item.price.idr.formattedValue }}</p>
+                <p class="text-sm">{{ item.price.idr.formattedValue }}</p>
               </div>
             </div>
 
             <div
-              class="flex items-center bg-white rounded-full overflow-hidden border border-gray-100"
+              class="flex items-center bg-white rounded-full overflow-hidden border border-gray-200"
             >
               <button
                 @click="
@@ -74,19 +74,19 @@ function doRemove() {
                     ? confirmRemove()
                     : cartStore.updateQuantity(item.id, item.quantity - 1)
                 "
-                class="w-8 h-7 md:w-9 md:h-8 flex items-center justify-center transition-colors hover:bg-secondary"
+                class="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center transition-colors hover:bg-secondary"
                 :class="item.quantity === 1 ? 'text-gray-400' : 'text-primary'"
                 :aria-label="item.quantity === 1 ? 'Remove item' : 'Decrease quantity'"
               >
                 <Trash2 v-if="item.quantity === 1" :size="13" />
                 <Minus v-else :size="13" :stroke-width="2.5" />
               </button>
-              <span class="w-8 text-center text-xs md:text-sm font-semibold text-gray-800">
+              <span class="w-8 text-center text-sm font-semibold text-gray-900">
                 {{ item.quantity }}
               </span>
               <button
                 @click="cartStore.updateQuantity(item.id, item.quantity + 1)"
-                class="w-8 h-7 md:w-9 md:h-8 flex items-center justify-center text-primary hover:bg-secondary transition-colors"
+                class="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-primary hover:bg-secondary transition-colors"
                 aria-label="Increase quantity"
               >
                 <Plus :size="13" :stroke-width="2.5" />

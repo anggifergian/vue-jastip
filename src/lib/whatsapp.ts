@@ -14,10 +14,10 @@ export function buildCartMessage(items: CartItem[]): string {
   })
 
   return [
-    'Halo, saya ingin menitipkan barang berikut:',
+    'Halloo, mau nitip ini dong:',
     '',
     ...lines,
     '',
-    'Mohon info estimasi total harga (kurs + ongkir + jasa titip) dan ketersediaan barang. Terima kasih! 🙏',
+    'Mohon info ketersediaan barang. Terima kasih!',
   ].join('\n')
 }

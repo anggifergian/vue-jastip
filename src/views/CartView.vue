@@ -81,7 +81,7 @@ watch(
             <RouterLink to="/catalog" class="text-sm text-primary font-medium hover:underline">
               ← Tambah item lain
             </RouterLink>
-            <AppButton variant="danger" @click="cartStore.clearCart()"> Kosongkan </AppButton>
+            <AppButton variant="ghost" @click="cartStore.clearCart()"> Kosongkan </AppButton>
           </div>
         </div>
 
