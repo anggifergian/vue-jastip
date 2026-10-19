@@ -18,17 +18,19 @@ export interface Availability {
   remaining: string
 }
 
+export interface PriceFormatted {
+  value: number
+  formattedValue: string
+  currency: string
+  idr: { value: number; formattedValue: string }
+}
+
 export interface CatalogProduct {
   id: string
   slug: string
   name: string
   description: string | null
-  price: {
-    value: number
-    formattedValue: string
-    currency: string
-    idr: { value: number; formattedValue: string }
-  }
+  price: PriceFormatted
   currency: string
   country: string
   category: string | null
@@ -57,6 +59,11 @@ export async function fetchProducts(category?: string): Promise<CatalogProduct[]
 
 export async function fetchProductBySlug(slug: string): Promise<CatalogProduct> {
   const { data } = await http.get<{ success: boolean; data: CatalogProduct }>(`/catalogs/${slug}`)
+  return data.data
+}
+
+export async function fetchFeaturedProducts(): Promise<CatalogProduct[]> {
+  const { data } = await http.get<{ success: boolean; data: CatalogProduct[] }>('/catalogs/featured')
   return data.data
 }
 

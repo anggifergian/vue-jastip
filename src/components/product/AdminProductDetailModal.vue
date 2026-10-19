@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { X, Package, Pencil, ImagePlus, Globe, Trash2, Archive, Loader2 } from '@lucide/vue'
 import { AxiosError } from 'axios'
-import Swal from 'sweetalert2'
+import { swal } from '@/lib/swal'
 import { getAdminProduct, publishProduct, deleteProduct, archiveProduct } from '@/services/admin/product'
 import type { AdminProduct } from '@/services/admin/product'
 import ProductImageGallery from '@/components/product/ProductImageGallery.vue'
@@ -48,11 +48,11 @@ async function handlePublish() {
     await publishProduct(product.value.id)
     emit('published', { ...product.value, status: 'published' })
     await refetch()
-    Swal.fire({ icon: 'success', title: 'Produk dipublish!', text: `"${product.value.name}" sekarang sudah live.`, timer: 2500, showConfirmButton: false })
+    swal.fire({ icon: 'success', title: 'Produk dipublish!', text: `"${product.value.name}" sekarang sudah live.`, timer: 2500, showConfirmButton: false })
   } catch (err: unknown) {
     const msg = err instanceof AxiosError ? err.response?.data?.error : undefined
     const text = msg ?? 'Terjadi kesalahan. Periksa koneksi dan coba lagi.'
-    Swal.fire({ icon: 'error', title: 'Gagal publish', text: text })
+    swal.fire({ icon: 'error', title: 'Gagal publish', text: text })
   } finally {
     isPublishing.value = false
   }
@@ -65,7 +65,7 @@ async function onImagesUpdated() {
 
 async function handleDelete() {
   if (!product.value || isDeleting.value) return
-  const { isConfirmed } = await Swal.fire({
+  const { isConfirmed } = await swal.fire({
     icon: 'warning',
     title: 'Hapus produk?',
     text: `"${product.value.name}" akan dihapus permanen.`,
@@ -82,7 +82,7 @@ async function handleDelete() {
     emit('delete', product.value)
   } catch (err: unknown) {
     const msg = (err instanceof AxiosError ? err.response?.data?.error : undefined) ?? 'Gagal menghapus produk. Coba lagi.'
-    Swal.fire({ icon: 'error', title: 'Gagal hapus', text: msg })
+    swal.fire({ icon: 'error', title: 'Gagal hapus', text: msg })
   } finally {
     isDeleting.value = false
   }
@@ -90,7 +90,7 @@ async function handleDelete() {
 
 async function handleArchive() {
   if (!product.value || isArchiving.value) return
-  const { isConfirmed } = await Swal.fire({
+  const { isConfirmed } = await swal.fire({
     icon: 'warning',
     title: 'Arsipkan produk?',
     text: `"${product.value.name}" akan diarsipkan dan tidak terlihat di katalog.`,
@@ -107,7 +107,7 @@ async function handleArchive() {
     emit('archived', product.value)
   } catch (err: unknown) {
     const msg = (err instanceof AxiosError ? err.response?.data?.error : undefined) ?? 'Gagal mengarsipkan produk. Coba lagi.'
-    Swal.fire({ icon: 'error', title: 'Gagal arsipkan', text: msg })
+    swal.fire({ icon: 'error', title: 'Gagal arsipkan', text: msg })
   } finally {
     isArchiving.value = false
   }
@@ -237,6 +237,12 @@ watch(() => props.open, (val) => {
                   class="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full"
                 >
                   {{ product.category }}
+                </span>
+                <span
+                  v-if="product.featured_order != null"
+                  class="text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full"
+                >
+                  ★ Featured #{{ product.featured_order }}
                 </span>
               </div>
 

@@ -39,20 +39,17 @@ async function handleSignOut() {
       <div class="flex items-center gap-6">
         <RouterLink
           to="/catalog"
-          class="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          class="text-sm font-medium text-gray-800 hover:text-primary transition-colors"
         >
           Catalog
         </RouterLink>
         <RouterLink
           to="/orders"
-          class="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          class="text-sm font-medium text-gray-800 hover:text-primary transition-colors hidden"
         >
           Orders
         </RouterLink>
-        <RouterLink
-          to="/cart"
-          class="relative text-muted-foreground hover:text-primary transition-colors"
-        >
+        <RouterLink to="/cart" class="relative text-gray-800 hover:text-primary transition-colors">
           <ShoppingCart :size="22" :stroke-width="1.5" />
           <span
             v-if="cartStore.totalItems > 0"
@@ -64,7 +61,7 @@ async function handleSignOut() {
         <button
           v-if="session"
           @click="handleSignOut"
-          class="text-muted-foreground hover:text-danger transition-colors"
+          class="text-gray-800 hover:text-danger transition-colors"
           title="Logout"
           aria-label="Logout"
         >
@@ -75,7 +72,9 @@ async function handleSignOut() {
   </nav>
 
   <!-- Mobile top navbar -->
-  <nav class="lg:hidden fixed top-0 left-0 right-0 z-40 bg-background border-b border-border pt-safe">
+  <nav
+    class="lg:hidden fixed top-0 left-0 right-0 z-40 bg-background border-b border-border pt-safe"
+  >
     <div class="flex items-center justify-between px-4 h-14">
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center gap-2 shrink-0">

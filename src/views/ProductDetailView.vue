@@ -66,14 +66,14 @@ const galleryImages = computed(() => {
     <Transition name="page-fade" mode="out-in">
       <!-- Loading skeleton -->
       <div v-if="isLoading" key="loading" class="lg:grid lg:grid-cols-2 lg:gap-12 animate-pulse">
-        <div class="h-72 lg:aspect-square lg:h-auto bg-muted rounded-xl mb-6 lg:mb-0" />
+        <div class="h-72 lg:aspect-square lg:h-auto bg-gray-200 rounded-xl mb-6 lg:mb-0" />
         <div class="space-y-4">
-          <div class="h-4 bg-muted rounded w-24" />
-          <div class="h-7 bg-muted rounded w-3/4" />
-          <div class="h-7 bg-muted rounded w-1/2" />
-          <div class="h-4 bg-muted rounded w-full mt-6" />
-          <div class="h-4 bg-muted rounded w-5/6" />
-          <div class="h-12 bg-muted rounded-xl mt-8" />
+          <div class="h-4 bg-gray-200 rounded w-24" />
+          <div class="h-7 bg-gray-200 rounded w-3/4" />
+          <div class="h-7 bg-gray-200 rounded w-1/2" />
+          <div class="h-4 bg-gray-200 rounded w-full mt-6" />
+          <div class="h-4 bg-gray-200 rounded w-5/6" />
+          <div class="h-12 bg-gray-200 rounded-xl mt-8" />
         </div>
       </div>
 
@@ -95,18 +95,9 @@ const galleryImages = computed(() => {
 
         <!-- Details -->
         <div class="flex flex-col gap-3">
-          <!-- Origin: i=0 -->
-          <div class="detail-stagger" style="--i: 0">
-            <span
-              class="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full"
-            >
-              {{ product.country }}
-            </span>
-          </div>
-
           <!-- Name: i=1 -->
           <div class="detail-stagger" style="--i: 1">
-            <h1 class="text-xl lg:text-2xl font-bold leading-snug">
+            <h1 class="text-base lg:text-lg font-semibold leading-snug text-gray-800">
               {{ product.name }}
             </h1>
             <div class="flex items-center gap-2 mt-1.5">
@@ -134,7 +125,12 @@ const galleryImages = computed(() => {
           <!-- Price: i=2 -->
           <div class="detail-stagger" style="--i: 2">
             <div>
-              <p class="text-2xl font-bold text-primary">{{ product.price.formattedValue }}</p>
+              <p class="text-xl font-semibold text-gray-800">{{ product.price.formattedValue }}</p>
+
+              <div class="text-gray-600 flex items-center gap-0.5 mt-0.5">
+                <span class="text-[10px]">&asymp;</span>
+                <p class="text-base">{{ product.price.idr.formattedValue }}</p>
+              </div>
             </div>
           </div>
 
@@ -232,10 +228,10 @@ const galleryImages = computed(() => {
       <div v-else class="w-full flex items-center justify-end">
         <Transition name="cart-swap" mode="out-in">
           <!-- qty = 0: just the CTA button -->
-          <div v-if="qty === 0" key="add" class="flex justify-end">
+          <div v-if="qty === 0" key="add" class="w-full">
             <AppButton
               size="lg"
-              class="rounded-full w-56"
+              class="rounded-full w-full"
               :disabled="isLoading"
               @click="cartStore.addItem(product!)"
             >

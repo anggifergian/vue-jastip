@@ -12,7 +12,7 @@ import {
   MoreHorizontal,
 } from '@lucide/vue'
 import { AxiosError } from 'axios'
-import Swal from 'sweetalert2'
+import { swal } from '@/lib/swal'
 import { publishProduct, deleteProduct, archiveProduct } from '@/services/admin/product'
 import type { AdminProduct } from '@/services/admin/product'
 import AdminProductDetailModal from '@/components/product/AdminProductDetailModal.vue'
@@ -51,7 +51,7 @@ async function handlePublish(product: AdminProduct) {
   try {
     await publishProduct(product.id)
     emit('published', { ...product, status: 'published' })
-    Swal.fire({
+    swal.fire({
       icon: 'success',
       title: 'Produk dipublish!',
       text: `"${product.name}" sekarang sudah live.`,
@@ -62,7 +62,7 @@ async function handlePublish(product: AdminProduct) {
     const msg =
       (err instanceof AxiosError ? err.response?.data?.error : undefined) ??
       'Terjadi kesalahan. Periksa koneksi dan coba lagi.'
-    Swal.fire({ icon: 'error', title: 'Gagal publish', text: msg })
+    swal.fire({ icon: 'error', title: 'Gagal publish', text: msg })
   } finally {
     const next = new Set(publishingIds.value)
     next.delete(product.id)
@@ -78,14 +78,6 @@ const STATUS_STYLE: Record<string, string> = {
 
 function statusStyle(s: string) {
   return STATUS_STYLE[s] ?? STATUS_STYLE.draft
-}
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'JPY',
-    maximumFractionDigits: 0,
-  }).format(price)
 }
 
 function formatDate(ts: string) {
@@ -104,7 +96,7 @@ function onDetailView(id: string) {
 }
 
 async function handleDeleteAction(product: AdminProduct) {
-  const { isConfirmed } = await Swal.fire({
+  const { isConfirmed } = await swal.fire({
     icon: 'warning',
     title: 'Hapus produk?',
     text: `"${product.name}" akan dihapus permanen.`,
@@ -123,7 +115,7 @@ async function handleDeleteAction(product: AdminProduct) {
     const msg =
       (err instanceof AxiosError ? err.response?.data?.error : undefined) ??
       'Gagal menghapus produk. Coba lagi.'
-    Swal.fire({ icon: 'error', title: 'Gagal hapus', text: msg })
+    swal.fire({ icon: 'error', title: 'Gagal hapus', text: msg })
   } finally {
     const next = new Set(deletingIds.value)
     next.delete(product.id)
@@ -132,7 +124,7 @@ async function handleDeleteAction(product: AdminProduct) {
 }
 
 async function handleArchiveAction(product: AdminProduct) {
-  const { isConfirmed } = await Swal.fire({
+  const { isConfirmed } = await swal.fire({
     icon: 'warning',
     title: 'Arsipkan produk?',
     text: `"${product.name}" akan diarsipkan dan tidak terlihat di katalog.`,
@@ -151,7 +143,7 @@ async function handleArchiveAction(product: AdminProduct) {
     const msg =
       (err instanceof AxiosError ? err.response?.data?.error : undefined) ??
       'Gagal mengarsipkan produk. Coba lagi.'
-    Swal.fire({ icon: 'error', title: 'Gagal arsipkan', text: msg })
+    swal.fire({ icon: 'error', title: 'Gagal arsipkan', text: msg })
   } finally {
     const next = new Set(archivingIds.value)
     next.delete(product.id)
@@ -200,21 +192,33 @@ async function handleArchiveAction(product: AdminProduct) {
 
           <!-- Name + Status -->
           <td class="px-4 py-3">
-            <span
-              class="inline-flex items-center mb-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize"
-              :class="statusStyle(product.status)"
-            >
-              {{ product.status }}
-            </span>
+            <div class="flex items-center gap-1 mb-1">
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize"
+                :class="statusStyle(product.status)"
+              >
+                {{ product.status }}
+              </span>
+              <span
+                v-if="product.featured_order != null"
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-amber-50 text-amber-700 border-amber-200"
+              >
+                ★ #{{ product.featured_order }}
+              </span>
+            </div>
             <p
               @click="onDetailView(product.id)"
               class="font-medium text-gray-900 line-clamp-2 leading-snug max-w-[200px] cursor-pointer hover:text-primary transition-colors"
             >
               {{ product.name }}
             </p>
-            <p class="text-xs text-gray-400 mt-0.5 sm:hidden">
-              {{ formatPrice(product.original_price) }}
+            <p class="text-xs text-gray-800 mt-0.5 sm:hidden">
+              {{ product.price.formattedValue }}
             </p>
+            <div class="text-neutral-600 flex items-center gap-0.5 mt-0.5">
+              <span class="text-[10px]">&asymp;</span>
+              <p class="text-xs">{{ product.price.idr.formattedValue }}</p>
+            </div>
           </td>
 
           <!-- Category -->
@@ -223,8 +227,12 @@ async function handleArchiveAction(product: AdminProduct) {
           </td>
 
           <!-- Price -->
-          <td class="px-4 py-3 hidden sm:table-cell font-medium text-gray-800">
-            {{ formatPrice(product.original_price) }}
+          <td class="px-4 py-3 hidden sm:table-cell">
+            <div class="font-medium text-gray-800">{{ product.price.formattedValue }}</div>
+            <div class="text-neutral-600 flex items-center gap-0.5 mt-0.5">
+              <span class="text-[10px]">&asymp;</span>
+              <p class="text-xs">{{ product.price.idr.formattedValue }}</p>
+            </div>
           </td>
 
           <!-- Stock -->

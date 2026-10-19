@@ -183,6 +183,12 @@ select {
   appearance: none;
 }
 
+input[type='checkbox'],
+input[type='radio'] {
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+
 /* 2. Remove iOS button chrome and kill the 300 ms tap delay */
 button,
 [role='button'],
@@ -216,6 +222,14 @@ label {
 
 .mt-safe  { margin-top:    var(--safe-top); }
 .mb-safe  { margin-bottom: var(--safe-bottom); }
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
 
 /* Combine: full-bleed fixed bars at the bottom of the screen */
 .inset-x-safe {

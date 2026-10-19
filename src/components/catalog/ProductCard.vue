@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import type { CatalogProduct } from '@/services/catalog'
 import { cn } from '@/lib/utils'
 
-const props = defineProps<{ product: CatalogProduct }>()
+const props = defineProps<{ product: CatalogProduct; hideIdrPrice?: boolean }>()
 
 const isAvailable = computed(() => props.product.availability.status !== 'OUT_OF_STOCK')
 const isLowStock = computed(() => props.product.availability.status === 'LOW_STOCK')
@@ -54,7 +54,7 @@ const primaryImage = computed(
         {{ product.price.formattedValue }}
       </p>
 
-      <div class="text-neutral-600 flex items-center gap-0.5 mt-0.5">
+      <div v-if="!hideIdrPrice" class="text-neutral-600 flex items-center gap-0.5 mt-0.5">
         <span class="text-[10px]">&asymp;</span>
         <p class="text-sm">{{ product.price.idr.formattedValue }}</p>
       </div>

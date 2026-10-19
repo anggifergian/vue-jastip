@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { MessageCircle, Phone, MapPin } from '@lucide/vue'
-import AppContainer from '@/components/layout/AppContainer.vue'
-import { waLink } from '@/lib/whatsapp'
+import { waLink, WA_NUMBER } from '@/lib/whatsapp'
+
+const INSTAGRAM = import.meta.env.VITE_INSTAGRAM as string
 </script>
 
 <template>
-  <section id="contact" class="py-14 lg:py-20 bg-indigo-600">
-    <AppContainer>
+  <section id="contact" class="py-8 lg:py-10 bg-gray-50 h-80">
+    <div class="md:max-w-6xl mx-auto w-full px-4 lg:px-8">
       <div class="text-center mb-10">
-        <p class="text-indigo-200 text-sm font-semibold uppercase mb-2">Get in Touch</p>
-        <h2 class="text-2xl lg:text-3xl font-bold text-white">Hubungi Kami</h2>
-        <p class="text-indigo-200 mt-3 text-sm lg:text-base max-w-md mx-auto">
+        <h2 class="text-2xl lg:text-3xl font-bold text-gray-900">Hubungi Kami</h2>
+        <p class="text-gray-500 mt-3 text-sm lg:text-base max-w-md mx-auto">
           Ada pertanyaan? Kami siap membantu! Hubungi kami via WhatsApp untuk respons tercepat.
         </p>
       </div>
@@ -26,25 +26,7 @@ import { waLink } from '@/lib/whatsapp'
           <MessageCircle :size="24" />
           Chat via WhatsApp
         </a>
-
-        <p class="text-indigo-200 text-sm">atau</p>
-
-        <!-- Secondary contacts -->
-        <div class="flex flex-col sm:flex-row gap-4 items-center">
-          <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2.5 rounded-xl text-sm">
-            <Phone :size="16" class="text-indigo-200" />
-            <span>+62 812-3456-789</span>
-          </div>
-          <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2.5 rounded-xl text-sm">
-            <MessageCircle :size="16" class="text-indigo-200" />
-            <span>@jastipku.id (Instagram)</span>
-          </div>
-          <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2.5 rounded-xl text-sm">
-            <MapPin :size="16" class="text-indigo-200" />
-            <span>Senin–Sabtu, 09:00–21:00 WIB</span>
-          </div>
-        </div>
       </div>
-    </AppContainer>
+    </div>
   </section>
 </template>

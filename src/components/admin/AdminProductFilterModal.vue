@@ -7,21 +7,24 @@ const props = defineProps<{
   open: boolean
   category: string
   status: string
+  featured: boolean
 }>()
 
 const emit = defineEmits<{
   close: []
-  apply: [category: string, status: string]
+  apply: [category: string, status: string, featured: boolean]
 }>()
 
 const pendingCategory = ref(props.category)
 const pendingStatus = ref(props.status)
+const pendingFeatured = ref(props.featured)
 
-const hasPending = computed(() => !!pendingCategory.value || !!pendingStatus.value)
+const hasPending = computed(() => !!pendingCategory.value || !!pendingStatus.value || pendingFeatured.value)
 
 function reset() {
   pendingCategory.value = ''
   pendingStatus.value = ''
+  pendingFeatured.value = false
 }
 
 watch(
@@ -30,6 +33,7 @@ watch(
     if (val) {
       pendingCategory.value = props.category
       pendingStatus.value = props.status
+      pendingFeatured.value = props.featured
     }
   },
 )
@@ -102,11 +106,23 @@ const statuses = [
               <option v-for="s in statuses" :key="s.id" :value="s.id">{{ s.name }}</option>
             </select>
           </div>
+
+          <!-- Featured -->
+          <div>
+            <label class="flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                v-model="pendingFeatured"
+                class="cursor-pointer"
+              />
+              <span class="text-sm text-gray-700">Featured saja</span>
+            </label>
+          </div>
         </div>
 
         <div class="flex items-center justify-end gap-2 mt-5">
           <AppButton variant="ghost" @click="emit('close')">Cancel</AppButton>
-          <AppButton @click="emit('apply', pendingCategory, pendingStatus)">Apply</AppButton>
+          <AppButton @click="emit('apply', pendingCategory, pendingStatus, pendingFeatured)">Apply</AppButton>
         </div>
       </div>
     </Transition>

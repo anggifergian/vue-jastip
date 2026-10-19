@@ -22,6 +22,7 @@ const originalPrice = ref<number | ''>(props.product.original_price)
 const flatFee = ref<number | ''>(props.product.flat_fee ?? '')
 const stock = ref<number | ''>(props.product.stock)
 const maxOrder = ref<number | ''>(props.product.maxOrder ?? '')
+const featuredOrder = ref<number | ''>(props.product.featured_order ?? '')
 const inStock = ref(props.product.stock > 0)
 
 const isSubmitting = ref(false)
@@ -60,8 +61,9 @@ function validate(): boolean {
   if (!name.value.trim()) e.name = 'Nama produk wajib diisi.'
   if (!description.value.trim()) e.desc = 'Deskripsi wajib diisi.'
   if (!category.value) e.category = 'Pilih kategori produk.'
-  if (!originalPrice.value || Number(originalPrice.value) <= 0) e.price = 'Masukkan harga yang valid.'
-  if (flatFee.value === '' || Number(flatFee.value) < 0) e.flatFee = 'Masukkan flat fee yang valid.'
+  if (!originalPrice.value || Number(originalPrice.value) <= 0)
+    e.price = 'Masukkan harga yang valid.'
+  if (flatFee.value === '' || Number(flatFee.value) < 0) e.flatFee = 'Masukkan margin yang valid.'
   if (stock.value === '' || Number(stock.value) < 0) e.stock = 'Masukkan jumlah stok.'
   if (!maxOrder.value || Number(maxOrder.value) <= 0) e.maxOrder = 'Masukkan batas order.'
   errors.value = e
@@ -85,6 +87,7 @@ async function submit() {
       flat_fee: Number(flatFee.value),
       stock: Number(stock.value),
       maxOrder: Number(maxOrder.value),
+      featured_order: featuredOrder.value !== '' ? Number(featuredOrder.value) : null,
     })
     emit('success')
   } catch (err: unknown) {
@@ -155,22 +158,55 @@ async function submit() {
           </div>
 
           <AppFormField label="Harga" required :error="errors.price">
-            <AppInputPrefix v-model="originalPrice" :prefix="currency" :error="!!errors.price" min="1" />
+            <AppInputPrefix
+              v-model="originalPrice"
+              :prefix="currency"
+              :error="!!errors.price"
+              min="1"
+            />
           </AppFormField>
 
-          <AppFormField label="Flat Fee" required :error="errors.flatFee">
-            <AppInputPrefix v-model="flatFee" :prefix="currency" :error="!!errors.flatFee" min="0" />
+          <AppFormField label="Flat Fee/Margin" required :error="errors.flatFee">
+            <AppInputPrefix
+              v-model="flatFee"
+              :prefix="currency"
+              :error="!!errors.flatFee"
+              min="0"
+            />
           </AppFormField>
 
           <div class="grid grid-cols-2 gap-4">
             <AppFormField label="Stok" required :error="errors.stock">
-              <AppInput v-model="stock" type="number" placeholder="0" min="0" :error="!!errors.stock" />
+              <AppInput
+                v-model="stock"
+                type="number"
+                placeholder="0"
+                min="0"
+                :error="!!errors.stock"
+              />
             </AppFormField>
             <AppFormField label="Maks. Order" required :error="errors.maxOrder">
-              <AppInput v-model="maxOrder" type="number" placeholder="0" min="1" :error="!!errors.maxOrder" />
+              <AppInput
+                v-model="maxOrder"
+                type="number"
+                placeholder="0"
+                min="1"
+                :error="!!errors.maxOrder"
+              />
             </AppFormField>
           </div>
         </div>
+      </section>
+
+      <!-- Featured -->
+      <section>
+        <h2 class="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">Featured</h2>
+        <AppFormField label="Featured Order">
+          <AppInput v-model="featuredOrder" type="number" placeholder="cth. 1" min="1" />
+          <p class="mt-1 text-xs text-gray-400">
+            Kosongkan jika tidak ditampilkan di halaman utama
+          </p>
+        </AppFormField>
       </section>
 
       <!-- Availability toggle -->
@@ -211,7 +247,14 @@ async function submit() {
         <AppButton type="submit" size="lg" :disabled="isSubmitting">
           <span v-if="isSubmitting" class="flex items-center gap-2">
             <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
             Menyimpan...

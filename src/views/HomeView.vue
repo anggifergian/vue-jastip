@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import HeroBanner from '@/components/landing/HeroBanner.vue'
-import HowToOrder from '@/components/landing/HowToOrder.vue'
-import ShippingProcess from '@/components/landing/ShippingProcess.vue'
+import FeaturedProducts from '@/components/landing/FeaturedProducts.vue'
 import ContactInfo from '@/components/landing/ContactInfo.vue'
 </script>
 
@@ -10,11 +9,8 @@ import ContactInfo from '@/components/landing/ContactInfo.vue'
     <!-- Section 1: Hero slider -->
     <HeroBanner />
 
-    <!-- Section 2: How to order -->
-    <HowToOrder />
-
-    <!-- Section 3: Shipping process -->
-    <ShippingProcess />
+    <!-- Section 2: Featured products -->
+    <FeaturedProducts />
 
     <!-- Section 4: Contact -->
     <ContactInfo />

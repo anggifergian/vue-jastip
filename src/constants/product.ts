@@ -1,1 +1,1 @@
-export const MAX_PRODUCT_PHOTOS = 5
+export const MAX_PRODUCT_PHOTOS = 10

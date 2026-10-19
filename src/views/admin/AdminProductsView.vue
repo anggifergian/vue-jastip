@@ -20,15 +20,17 @@ const fetchError = ref('')
 const isFilterOpen = ref(false)
 const filterCategory = ref('')
 const filterStatus = ref('')
+const filterFeatured = ref(false)
 
 const filterCount = computed(
-  () => [filterCategory.value, filterStatus.value].filter(Boolean).length,
+  () => [filterCategory.value, filterStatus.value].filter(Boolean).length + (filterFeatured.value ? 1 : 0),
 )
 const hasActiveFilter = computed(() => filterCount.value > 0)
 
-function onFilterApply(category: string, status: string) {
+function onFilterApply(category: string, status: string, featured: boolean) {
   filterCategory.value = category
   filterStatus.value = status
+  filterFeatured.value = featured
   isFilterOpen.value = false
   load()
 }
@@ -36,6 +38,7 @@ function onFilterApply(category: string, status: string) {
 function clearFilter() {
   filterCategory.value = ''
   filterStatus.value = ''
+  filterFeatured.value = false
   load()
 }
 
@@ -47,6 +50,7 @@ async function load() {
     const params: Record<string, string> = {}
     if (filterCategory.value) params.category = filterCategory.value
     if (filterStatus.value) params.status = filterStatus.value
+    if (filterFeatured.value) params.featured = 'true'
     products.value = await getAdminProducts(params)
   } catch {
     fetchError.value = 'Gagal memuat produk. Periksa koneksi dan coba lagi.'
@@ -189,6 +193,7 @@ function openFilter() {
     :open="isFilterOpen"
     :category="filterCategory"
     :status="filterStatus"
+    :featured="filterFeatured"
     @close="isFilterOpen = false"
     @apply="onFilterApply"
   />

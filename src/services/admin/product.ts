@@ -1,4 +1,5 @@
 import http from '@/lib/http'
+import type { PriceFormatted } from '../catalog'
 
 // ── Types ────────────────────────────────────────────────
 export interface AdminProductImage {
@@ -21,10 +22,12 @@ export interface AdminProduct {
   status: string
   stock: number
   maxOrder: number | null
+  featured_order: number | null
   images: AdminProductImage[]
   main_image: string | null
   created_at: string
   updated_at: string
+  price: PriceFormatted
 }
 
 export interface CreateProductPayload {
@@ -37,6 +40,7 @@ export interface CreateProductPayload {
   flat_fee: number
   stock: number
   maxOrder: number
+  featured_order: number | null
   image_keys: string[]
 }
 
@@ -50,6 +54,7 @@ export interface UpdateProductPayload {
   flat_fee?: number
   stock?: number
   maxOrder?: number
+  featured_order?: number | null
 }
 
 // ── Endpoints ────────────────────────────────────────────

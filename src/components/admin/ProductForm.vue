@@ -24,6 +24,7 @@ const originalPrice = ref<number | ''>('')
 const flatFee = ref<number | ''>('')
 const stock = ref<number | ''>('')
 const maxOrder = ref<number | ''>('')
+const featuredOrder = ref<number | ''>('')
 const inStock = ref(true)
 
 const isSubmitting = ref(false)
@@ -63,8 +64,9 @@ function validate(): boolean {
   if (!name.value.trim()) e.name = 'Nama produk wajib diisi.'
   if (!description.value.trim()) e.desc = 'Deskripsi wajib diisi.'
   if (!category.value) e.category = 'Pilih kategori produk.'
-  if (!originalPrice.value || Number(originalPrice.value) <= 0) e.price = 'Masukkan harga yang valid.'
-  if (flatFee.value === '' || Number(flatFee.value) < 0) e.flatFee = 'Masukkan flat fee yang valid.'
+  if (!originalPrice.value || Number(originalPrice.value) <= 0)
+    e.price = 'Masukkan harga yang valid.'
+  if (flatFee.value === '' || Number(flatFee.value) < 0) e.flatFee = 'Masukkan margin yang valid.'
   if (stock.value === '' || Number(stock.value) < 0) e.stock = 'Masukkan jumlah stok.'
   if (!maxOrder.value || Number(maxOrder.value) <= 0) e.maxOrder = 'Masukkan batas order.'
   errors.value = e
@@ -93,6 +95,7 @@ async function submit() {
       flat_fee: Number(flatFee.value),
       stock: Number(stock.value),
       maxOrder: Number(maxOrder.value),
+      featured_order: featuredOrder.value !== '' ? Number(featuredOrder.value) : null,
       image_keys: imageKeys.value,
     })
     emit('success')
@@ -158,7 +161,9 @@ async function submit() {
           <AppFormField label="Kategori" required :error="errors.category">
             <AppSelect v-model="category" :error="!!errors.category">
               <option value="" disabled>Pilih kategori...</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                {{ cat.name }}
+              </option>
             </AppSelect>
           </AppFormField>
         </section>
@@ -173,33 +178,72 @@ async function submit() {
             <div class="grid grid-cols-2 gap-4">
               <AppFormField label="Mata Uang">
                 <AppSelect v-model="currency">
-                  <option v-for="c in currencies" :key="c.code" :value="c.code">{{ c.label }}</option>
+                  <option v-for="c in currencies" :key="c.code" :value="c.code">
+                    {{ c.label }}
+                  </option>
                 </AppSelect>
               </AppFormField>
               <AppFormField label="Negara Asal">
                 <AppSelect v-model="country">
-                  <option v-for="c in countries" :key="c.code" :value="c.code">{{ c.label }}</option>
+                  <option v-for="c in countries" :key="c.code" :value="c.code">
+                    {{ c.label }}
+                  </option>
                 </AppSelect>
               </AppFormField>
             </div>
 
             <AppFormField label="Harga" required :error="errors.price">
-              <AppInputPrefix v-model="originalPrice" :prefix="currency" :error="!!errors.price" min="1" />
+              <AppInputPrefix
+                v-model="originalPrice"
+                :prefix="currency"
+                :error="!!errors.price"
+                min="1"
+              />
             </AppFormField>
 
-            <AppFormField label="Flat Fee" required :error="errors.flatFee">
-              <AppInputPrefix v-model="flatFee" :prefix="currency" :error="!!errors.flatFee" min="0" />
+            <AppFormField label="Flat Fee/Margin" required :error="errors.flatFee">
+              <AppInputPrefix
+                v-model="flatFee"
+                :prefix="currency"
+                :error="!!errors.flatFee"
+                min="0"
+              />
             </AppFormField>
 
             <div class="grid grid-cols-2 gap-4">
               <AppFormField label="Stok" required :error="errors.stock">
-                <AppInput v-model="stock" type="number" placeholder="0" min="0" :error="!!errors.stock" />
+                <AppInput
+                  v-model="stock"
+                  type="number"
+                  placeholder="0"
+                  min="0"
+                  :error="!!errors.stock"
+                />
               </AppFormField>
               <AppFormField label="Maks. Order" required :error="errors.maxOrder">
-                <AppInput v-model="maxOrder" type="number" placeholder="0" min="1" :error="!!errors.maxOrder" />
+                <AppInput
+                  v-model="maxOrder"
+                  type="number"
+                  placeholder="0"
+                  min="1"
+                  :error="!!errors.maxOrder"
+                />
               </AppFormField>
             </div>
           </div>
+        </section>
+
+        <!-- Featured -->
+        <section>
+          <h2 class="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">
+            Featured
+          </h2>
+          <AppFormField label="Featured Order">
+            <AppInput v-model="featuredOrder" type="number" placeholder="cth. 1" min="1" />
+            <p class="mt-1 text-xs text-gray-400">
+              Kosongkan jika tidak ditampilkan di halaman utama
+            </p>
+          </AppFormField>
         </section>
 
         <!-- Availability toggle -->
@@ -240,7 +284,14 @@ async function submit() {
           <AppButton type="submit" size="lg" :disabled="isSubmitting">
             <span v-if="isSubmitting" class="flex items-center gap-2">
               <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
               </svg>
               Menyimpan...

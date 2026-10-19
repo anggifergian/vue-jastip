@@ -26,16 +26,13 @@ export interface Product {
   badge?: string
 }
 
+import type { PriceFormatted } from '@/services/catalog'
+
 export interface CartItem {
   id: string
   slug: string
   name: string
-  price: {
-    value: number
-    formattedValue: string
-    currency: string
-    idr: { value: number; formattedValue: string }
-  }
+  price: PriceFormatted
   currency: string
   country: string
   availability: { status: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'; remaining: string }

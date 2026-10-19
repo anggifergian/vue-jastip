@@ -96,9 +96,9 @@ const gridKey = computed(() => `products-${selectedCategory.value}`)
           <!-- Loading skeleton -->
           <div v-if="isLoading" key="loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-2.5 gap-y-4">
             <div v-for="n in 6" :key="n" class="animate-pulse space-y-3">
-              <div class="aspect-square bg-gray-100 rounded-xl" />
-              <div class="h-3 bg-gray-100 rounded w-3/4" />
-              <div class="h-3 bg-gray-100 rounded w-1/2" />
+              <div class="h-44 md:h-52 bg-gray-200 rounded-lg" />
+              <div class="h-3 bg-gray-200 rounded w-3/4" />
+              <div class="h-3 bg-gray-200 rounded w-1/2" />
             </div>
           </div>
 
@@ -143,33 +143,16 @@ const gridKey = computed(() => `products-${selectedCategory.value}`)
   >
     <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
       <h3 class="font-bold text-gray-800">Filter Kategori</h3>
-      <div class="flex items-center gap-3">
-        <button
-          v-if="selectedCategory !== 'all'"
-          @click="selectedCategory = 'all'"
-          class="text-xs text-indigo-600 font-medium hover:underline"
-        >
-          Reset
-        </button>
-        <button @click="isFilterOpen = false" class="text-gray-400 hover:text-foreground transition-colors">
-          <X :size="18" />
-        </button>
-      </div>
+      <button @click="isFilterOpen = false" class="text-gray-400 hover:text-foreground transition-colors">
+        <X :size="18" />
+      </button>
     </div>
     <div class="overflow-y-auto flex-1 px-5 py-5">
       <CatalogFilter
         :category="selectedCategory"
         :categories="categories ?? []"
-        @update:category="selectedCategory = $event"
+        @update:category="selectedCategory = $event; isFilterOpen = false"
       />
-    </div>
-    <div class="px-5 py-4 border-t border-gray-100 shrink-0">
-      <button
-        @click="isFilterOpen = false"
-        class="w-full py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-primary transition-colors"
-      >
-        Tampilkan {{ displayedProducts.length }} produk
-      </button>
     </div>
   </AppBottomSheet>
 </template>

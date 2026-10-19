@@ -8,11 +8,10 @@ const router = useRouter()
 const slides = [
   {
     id: 1,
-    headline: 'Belanja dari Jepang & Korea',
+    headline: 'Belanja dari Jepang',
     sub: 'Produk asli langsung dari sumbernya — kosmetik, makanan, hingga merchandise eksklusif.',
     cta: 'Lihat Katalog',
     gradient: 'from-indigo-600 to-violet-700',
-    emoji: '🛍️',
   },
   {
     id: 2,
@@ -21,25 +20,14 @@ const slides = [
     cta: 'Shop Skincare',
     gradient: 'from-pink-500 to-rose-600',
     category: 'skincare-beauty',
-    emoji: '✨',
   },
   {
     id: 3,
     headline: 'Merchandise Eksklusif',
-    sub: 'Ghibli, Demon Slayer, BTS — koleksi merchandise resmi & action figure terbaru.',
+    sub: 'Ghibli, Demon Slayer — koleksi merchandise resmi & action figure terbaru.',
     cta: 'Shop Merch',
     gradient: 'from-amber-500 to-orange-600',
     category: 'merchandise',
-    emoji: '⭐',
-  },
-  {
-    id: 4,
-    headline: 'Pengiriman Aman ke Seluruh Indonesia',
-    sub: 'Semua produk dikemas aman. Estimasi 10–21 hari kerja dari Jepang/Korea.',
-    cta: 'Cara Pesan',
-    gradient: 'from-teal-500 to-cyan-600',
-    emoji: '📦',
-    scrollTo: 'how-to-order',
   },
 ]
 
@@ -59,8 +47,8 @@ function goTo(index: number) {
 }
 
 function handleCta(slide: (typeof slides)[0]) {
-  if (slide.scrollTo) {
-    document.getElementById(slide.scrollTo)?.scrollIntoView({ behavior: 'smooth' })
+  if ('scrollTo' in slide && slide.scrollTo) {
+    document.getElementById(slide.scrollTo as string)?.scrollIntoView({ behavior: 'smooth' })
   } else if (slide.category) {
     router.push({ path: '/catalog', query: { category: slide.category } })
   } else {
@@ -83,7 +71,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section class="relative overflow-hidden" style="height: clamp(380px, 55vw, 520px)">
+  <section class="relative overflow-hidden h-80 md:h-90 lg:h-100">
     <!-- Slides -->
     <TransitionGroup name="slide-fade" tag="div" class="relative h-full">
       <div
@@ -94,7 +82,6 @@ onUnmounted(() => {
         :class="slide.gradient"
       >
         <div class="max-w-2xl text-center space-y-5">
-          <div class="text-5xl lg:text-7xl">{{ slide.emoji }}</div>
           <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
             {{ slide.headline }}
           </h1>
@@ -113,13 +100,23 @@ onUnmounted(() => {
 
     <!-- Arrows -->
     <button
-      @click="() => { prev(); resetTimer() }"
+      @click="
+        () => {
+          prev()
+          resetTimer()
+        }
+      "
       class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center text-white transition-colors"
     >
       <ChevronLeft :size="18" />
     </button>
     <button
-      @click="() => { next(); resetTimer() }"
+      @click="
+        () => {
+          next()
+          resetTimer()
+        }
+      "
       class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center text-white transition-colors"
     >
       <ChevronRight :size="18" />
@@ -130,7 +127,12 @@ onUnmounted(() => {
       <button
         v-for="(_, i) in slides"
         :key="i"
-        @click="() => { goTo(i); resetTimer() }"
+        @click="
+          () => {
+            goTo(i)
+            resetTimer()
+          }
+        "
         class="h-1.5 rounded-full transition-all"
         :class="current === i ? 'w-6 bg-white' : 'w-1.5 bg-white/40'"
       />
