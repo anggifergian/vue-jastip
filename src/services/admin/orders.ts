@@ -1,14 +1,39 @@
 import http from '@/lib/http'
 
 // ── Types ────────────────────────────────────────────────
-export type OrderStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'purchased'
-  | 'shipped'
-  | 'arrived'
-  | 'delivered'
-  | 'cancelled'
+export const ORDER_STATUSES = [
+  'pending',
+  'payment_uploaded',
+  'payment_confirmed',
+  'acknowledged',
+  'purchased',
+  'arrived',
+  'shipped',
+  'delivered',
+  'completed',
+  'cancelled',
+  'refund_requested',
+  'refunded',
+] as const
+
+export type OrderStatus = typeof ORDER_STATUSES[number]
+
+export interface AdminOrder {
+  id: string
+  user_email: string
+  user_phone: string
+  status: OrderStatus
+  notes: string | null
+  tracking_number: string | null
+  total_price: number
+  flat_fee_total: number
+  estimated_customs_idr: number
+  customs_exceeds_limit: number
+  dp_amount: number
+  exchange_rates_snapshot: string | null
+  created_at: number
+  updated_at: number
+}
 
 export interface OrderItem {
   id: string
@@ -38,41 +63,35 @@ export interface Order {
   updated_at: number
 }
 
-export interface OrderListItem {
-  id: string
-  order_number: string
-  customer_name: string
-  status: OrderStatus
-  total: number
-  item_count: number
-  created_at: number
-}
-
 export interface UpdateOrderPayload {
   status?: OrderStatus
-  shipping_fee?: number
-  service_fee?: number
+  tracking_number?: string
   notes?: string
 }
 
 export interface OrderQuery {
   page?: number
   limit?: number
-  status?: OrderStatus
+  status?: OrderStatus | ''
   search?: string
 }
 
-export interface PaginatedOrders {
-  data: OrderListItem[]
-  total: number
+export interface Pagination {
   page: number
   limit: number
+  total: number
+  totalPages: number
+}
+
+export interface PaginatedOrders {
+  data: AdminOrder[]
+  pagination: Pagination
 }
 
 // ── Endpoints ────────────────────────────────────────────
 export async function getAdminOrders(query: OrderQuery = {}): Promise<PaginatedOrders> {
   const { data } = await http.get('/admin/orders', { params: query })
-  return data.data
+  return { data: data.data, pagination: data.pagination }
 }
 
 export async function getAdminOrder(id: string): Promise<Order> {

@@ -81,6 +81,22 @@
   --radius-2xl: calc(var(--radius) + 1rem);
 }
 
+/* ─── SweetAlert2 overrides ──────────────────────────────────────────────── */
+.swal2-confirm,
+.swal2-cancel,
+.swal2-deny {
+  border-radius: 9999px !important;
+}
+
+/* ─── Lazy image fade-in ─────────────────────────────────────────────────── */
+.img-lazy {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.img-lazy.loaded {
+  opacity: 1;
+}
+
 /* ─── Global transitions ─────────────────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }

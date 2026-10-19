@@ -17,19 +17,20 @@ const primaryImage = computed(
 <template>
   <RouterLink
     :to="`/product/${product.slug}`"
-    class="group flex flex-col h-full overflow-hidden rounded-lg border border-gray-200 bg-background transition-transform duration-200 hover:-translate-y-1 hover:shadow-xs"
+    class="group flex flex-col h-full overflow-hidden rounded-lg bg-background transition-transform duration-200 group"
   >
     <!-- Image -->
     <div
-      class="relative h-44 md:h-52 overflow-hidden bg-gray-100"
+      class="relative h-44 md:h-52 overflow-hidden bg-gray-100 rounded-lg"
       :class="!isAvailable && 'grayscale opacity-50'"
     >
       <img
         v-if="primaryImage"
         :src="primaryImage.url"
         :alt="primaryImage.altText ?? product.name"
-        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 img-lazy"
         loading="lazy"
+        @load="(e) => (e.target as HTMLElement).classList.add('loaded')"
       />
       <div v-else class="w-full h-full bg-gray-100" />
 
@@ -42,23 +43,30 @@ const primaryImage = computed(
     </div>
 
     <!-- Info -->
-    <div class="flex flex-col gap-1 px-3 py-2.5 flex-1">
-      <p class="text-sm leading-snug line-clamp-2 text-secondary-foreground">
-        {{ product.name }}
+    <div class="px-1 py-2.5 flex-1">
+      <div class="mb-1">
+        <p class="text-sm leading-5 line-clamp-2 text-neutral-800 hover:text-primary">
+          {{ product.name }}
+        </p>
+      </div>
+
+      <p class="font-semibold text-neutral-800 text-base mt-0.5 leading-6">
+        {{ product.price.formattedValue }}
       </p>
 
-      <!-- Availability status -->
-      <p v-if="isLowStock" class="text-[11px] font-medium text-amber-600">
+      <div class="text-neutral-600 flex items-center gap-0.5 mt-0.5">
+        <span class="text-[10px]">&asymp;</span>
+        <p class="text-sm">{{ product.price.idr.formattedValue }}</p>
+      </div>
+
+      <!-- Availability status Low stock -->
+      <p v-if="isLowStock" class="text-xs font-medium text-primary pt-1.5">
         Sisa {{ Number(product.availability.remaining) }} item
       </p>
-      <p v-else-if="!isAvailable" class="text-[11px] font-medium text-rose-500">
-        Tidak tersedia
-      </p>
 
-      <p
-        class="text-lg font-bold mt-0.5 text-primary"
-      >
-        {{ product.price.formattedValue }}
+      <!-- Availability status Out-of-stock -->
+      <p v-else-if="!isAvailable" class="text-xs font-medium text-rose-500 pt-1.5">
+        Tidak tersedia
       </p>
     </div>
   </RouterLink>

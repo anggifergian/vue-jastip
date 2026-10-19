@@ -1,37 +1,51 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
-import { ShoppingCart, ShoppingBag, MessageCircle } from '@lucide/vue'
+import { ShoppingCart, ShoppingBag, MessageCircle, ChevronUp } from '@lucide/vue'
 import { useCartStore } from '@/stores/cart'
 import CartItemRow from '@/components/cart/CartItemRow.vue'
 import CartOverview from '@/components/cart/CartOverview.vue'
+import CartBottomSheet from '@/components/cart/CartBottomSheet.vue'
 import AppContainer from '@/components/layout/AppContainer.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import { waLink, buildCartMessage } from '@/lib/whatsapp'
+import { formatMoney } from '@/lib/money'
 
 const cartStore = useCartStore()
 
 const cartWaLink = computed(() => waLink(buildCartMessage(cartStore.items)))
+
+const showSheet = ref(false)
+
+const countDirection = ref<'up' | 'down'>('up')
+watch(
+  () => cartStore.totalItems,
+  (next, prev) => {
+    countDirection.value = next > prev ? 'up' : 'down'
+  },
+)
 </script>
 
 <template>
   <AppContainer spacing="py-6 lg:py-10 pb-28 lg:pb-10">
     <!-- Header -->
-    <div class="flex items-center gap-2 mb-6 page-enter">
-      <ShoppingCart :size="20" class="text-primary" />
-      <h1 class="text-xl lg:text-2xl font-bold">
-        Daftar Titipan
-        <Transition name="count-swap" mode="out-in">
-          <span v-if="cartStore.totalItems > 0" :key="cartStore.totalItems" class="text-primary">
-            ({{ cartStore.totalItems }})
-          </span>
-        </Transition>
+    <div class="flex items-center gap-2 mb-2 page-enter">
+      <ShoppingCart :size="16" class="text-primary" />
+      <h1 class="text-sm lg:text-base font-medium text-primary">
+        Titipan
+        <span v-if="cartStore.totalItems > 0" class="text-primary">
+          (<Transition :name="`count-${countDirection}`" mode="out-in">
+            <span :key="cartStore.totalItems" class="inline-block">
+              {{ cartStore.totalItems }}
+            </span>
+          </Transition>
+          item)
+        </span>
       </h1>
     </div>
 
     <!-- Empty ↔ cart content crossfade -->
     <Transition name="content-fade" mode="out-in">
-
       <!-- Empty state -->
       <div
         v-if="cartStore.items.length === 0"
@@ -43,7 +57,9 @@ const cartWaLink = computed(() => waLink(buildCartMessage(cartStore.items)))
         </div>
         <div class="text-center">
           <p class="font-semibold">Belum ada titipan</p>
-          <p class="text-sm text-muted-foreground mt-1">Temukan produk dari Jepang & Korea dan mulai titip</p>
+          <p class="text-sm text-muted-foreground mt-1">
+            Temukan produk dari Jepang & Korea dan mulai titip
+          </p>
         </div>
         <RouterLink
           to="/catalog"
@@ -58,20 +74,14 @@ const cartWaLink = computed(() => waLink(buildCartMessage(cartStore.items)))
         <!-- Cart items (2/3) -->
         <div class="lg:col-span-2">
           <TransitionGroup name="cart-item" tag="div">
-            <CartItemRow
-              v-for="item in cartStore.items"
-              :key="item.id"
-              :item="item"
-            />
+            <CartItemRow v-for="item in cartStore.items" :key="item.id" :item="item" />
           </TransitionGroup>
 
           <div class="mt-4 flex items-center justify-between">
             <RouterLink to="/catalog" class="text-sm text-primary font-medium hover:underline">
               ← Tambah item lain
             </RouterLink>
-            <AppButton variant="danger" size="sm" @click="cartStore.clearCart()">
-              Kosongkan
-            </AppButton>
+            <AppButton variant="danger" @click="cartStore.clearCart()"> Kosongkan </AppButton>
           </div>
         </div>
 
@@ -80,7 +90,6 @@ const cartWaLink = computed(() => waLink(buildCartMessage(cartStore.items)))
           <CartOverview />
         </div>
       </div>
-
     </Transition>
   </AppContainer>
 
@@ -88,15 +97,18 @@ const cartWaLink = computed(() => waLink(buildCartMessage(cartStore.items)))
   <Transition name="bottom-bar">
     <div
       v-if="cartStore.items.length > 0"
-      class="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-3 pb-3 pb-safe z-30 shadow-xl"
+      class="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-4 pb-4 z-30 shadow-xl"
     >
       <div class="flex items-center justify-between gap-4">
-        <div>
-          <p class="text-xs text-muted-foreground">Daftar Titipan</p>
-          <p class="text-base font-bold">{{ cartStore.totalItems }} item</p>
-        </div>
+        <button class="text-left" @click="showSheet = true">
+          <div class="flex items-center gap-1">
+            <p class="text-xs font-medium">Total estimasi</p>
+            <ChevronUp :size="13" :stroke-width="2.5" />
+          </div>
+          <p class="text-base font-bold">{{ formatMoney(cartStore.totalPriceIDR, 'IDR') }}</p>
+        </button>
         <a :href="cartWaLink" target="_blank" rel="noopener noreferrer">
-          <AppButton>
+          <AppButton size="lg" class="rounded-full">
             <MessageCircle :size="16" />
             Kirim via WhatsApp
           </AppButton>
@@ -105,21 +117,58 @@ const cartWaLink = computed(() => waLink(buildCartMessage(cartStore.items)))
     </div>
   </Transition>
 
+  <CartBottomSheet :is-open="showSheet" @close="showSheet = false" />
 </template>
 
 <style scoped>
-.count-swap-enter-active { transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
-.count-swap-leave-active { transition: opacity 0.1s ease; position: absolute; }
-.count-swap-enter-from { opacity: 0; transform: translateY(-4px); }
-.count-swap-leave-to  { opacity: 0; }
+/* count increases: new number slides up from below */
+.count-up-enter-active,
+.count-down-enter-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.count-up-leave-active,
+.count-down-leave-active {
+  transition:
+    opacity 0.1s ease,
+    transform 0.1s ease;
+}
+
+.count-up-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.count-up-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.count-down-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.count-down-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
 
 .cart-item-enter-active {
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.cart-item-enter-from { opacity: 0; transform: translateX(-12px); }
+.cart-item-enter-from {
+  opacity: 0;
+  transform: translateX(-12px);
+}
 
 .cart-item-leave-active {
-  transition: opacity 0.25s ease, max-height 0.3s ease 0.05s, padding 0.3s ease 0.05s, margin 0.3s ease 0.05s;
+  transition:
+    opacity 0.25s ease,
+    max-height 0.3s ease 0.05s,
+    padding 0.3s ease 0.05s,
+    margin 0.3s ease 0.05s;
   overflow: hidden;
   max-height: 200px;
 }
@@ -136,8 +185,22 @@ const cartWaLink = computed(() => waLink(buildCartMessage(cartStore.items)))
   animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
-.bottom-bar-enter-active { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease; }
-.bottom-bar-leave-active { transition: transform 0.2s ease, opacity 0.2s ease; }
-.bottom-bar-enter-from { transform: translateY(100%); opacity: 0; }
-.bottom-bar-leave-to  { transform: translateY(100%); opacity: 0; }
+.bottom-bar-enter-active {
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
+}
+.bottom-bar-leave-active {
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+.bottom-bar-enter-from {
+  transform: translateY(100%);
+  opacity: 0;
+}
+.bottom-bar-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
 </style>

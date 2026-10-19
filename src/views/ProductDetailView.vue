@@ -2,7 +2,16 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { ArrowRight, ShoppingCart, Plus, Minus, Trash2, Package, MessageCircle } from '@lucide/vue'
+import {
+  ArrowRight,
+  ShoppingCart,
+  Plus,
+  Minus,
+  Trash2,
+  Package,
+  MessageCircle,
+  Loader2,
+} from '@lucide/vue'
 import { fetchProductBySlug } from '@/services/catalog'
 import { useCartStore } from '@/stores/cart'
 import { waLink } from '@/lib/whatsapp'
@@ -17,10 +26,14 @@ const cartStore = useCartStore()
 
 const slug = computed(() => route.params.slug as string)
 
-const { data: product, isLoading, isError } = useQuery({
+const {
+  data: product,
+  isLoading,
+  isError,
+} = useQuery({
   queryKey: computed(() => ['product', slug.value]),
   queryFn: () => fetchProductBySlug(slug.value),
-  staleTime: 5 * 60 * 1000,
+  placeholderData: (prev) => prev,
 })
 
 const isAvailable = computed(() => product.value?.availability.status !== 'OUT_OF_STOCK')
@@ -40,7 +53,7 @@ const galleryImages = computed(() => {
 </script>
 
 <template>
-  <AppContainer spacing="py-6 lg:py-10 pb-24 lg:pb-10">
+  <AppContainer spacing="py-6 lg:py-10 pb-24 lg:pb-10 overflow-x-hidden">
     <!-- Back -->
     <button
       @click="router.back()"
@@ -51,7 +64,6 @@ const galleryImages = computed(() => {
     </button>
 
     <Transition name="page-fade" mode="out-in">
-
       <!-- Loading skeleton -->
       <div v-if="isLoading" key="loading" class="lg:grid lg:grid-cols-2 lg:gap-12 animate-pulse">
         <div class="h-72 lg:aspect-square lg:h-auto bg-muted rounded-xl mb-6 lg:mb-0" />
@@ -76,7 +88,6 @@ const galleryImages = computed(() => {
 
       <!-- Product detail -->
       <div v-else key="product" class="lg:grid lg:grid-cols-2 lg:gap-12">
-
         <!-- Image gallery -->
         <div class="mb-6 lg:mb-0 img-reveal" :class="!isAvailable && 'grayscale opacity-60'">
           <ProductImageGallery :images="galleryImages" :in-stock="isAvailable" />
@@ -84,10 +95,11 @@ const galleryImages = computed(() => {
 
         <!-- Details -->
         <div class="flex flex-col gap-3">
-
           <!-- Origin: i=0 -->
           <div class="detail-stagger" style="--i: 0">
-            <span class="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
+            <span
+              class="text-xs font-medium bg-muted text-muted-foreground px-2.5 py-1 rounded-full"
+            >
               {{ product.country }}
             </span>
           </div>
@@ -132,54 +144,69 @@ const galleryImages = computed(() => {
           </div>
 
           <!-- CTA desktop only: i=4 -->
-          <div class="hidden lg:block detail-stagger border-t border-border pt-4 mt-auto" style="--i: 4">
+          <div
+            class="hidden lg:block detail-stagger border-t border-border pt-4 mt-auto"
+            style="--i: 4"
+          >
             <div v-if="isAvailable">
               <Transition name="cart-swap" mode="out-in">
                 <AppButton
                   v-if="qty === 0"
                   key="add"
                   size="lg"
-                  class="w-full"
+                  class="w-full rounded-full"
+                  :disabled="isLoading"
                   @click="cartStore.addItem(product)"
                 >
-                  <ShoppingCart :size="18" />
+                  <Loader2 v-if="isLoading" :size="18" class="animate-spin" />
+                  <ShoppingCart v-else :size="18" />
                   Titip Ini
                 </AppButton>
 
                 <div v-else key="qty" class="flex items-center gap-4">
-                  <div class="flex items-center bg-accent rounded-xl p-1.5 gap-2">
+                  <div
+                    class="flex items-center bg-white rounded-full overflow-hidden border border-gray-100"
+                  >
                     <button
-                      @click="qty === 1 ? cartStore.removeItem(product.id) : cartStore.updateQuantity(product.id, qty - 1)"
-                      :class="cn(
-                        'w-9 h-9 rounded-lg bg-background border border-border flex items-center justify-center transition-colors shadow-sm',
-                        qty === 1 ? 'text-danger hover:bg-danger/10' : 'text-primary hover:bg-accent',
-                      )"
+                      @click="
+                        qty === 1
+                          ? cartStore.removeItem(product.id)
+                          : cartStore.updateQuantity(product.id, qty - 1)
+                      "
+                      class="w-10 h-9 flex items-center justify-center transition-colors hover:bg-secondary"
+                      :class="qty === 1 ? 'text-gray-400' : 'text-primary'"
                     >
-                      <Trash2 v-if="qty === 1" :size="16" />
-                      <Minus v-else :size="16" />
+                      <Trash2 v-if="qty === 1" :size="15" />
+                      <Minus v-else :size="15" :stroke-width="2.5" />
                     </button>
-                    <span class="w-8 text-center font-bold text-primary">{{ qty }}</span>
+                    <span class="w-9 text-center text-sm font-semibold text-gray-800">{{
+                      qty
+                    }}</span>
                     <button
                       @click="cartStore.addItem(product)"
-                      class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors"
+                      class="w-10 h-9 flex items-center justify-center text-primary hover:bg-secondary transition-colors"
                     >
-                      <Plus :size="16" />
+                      <Plus :size="15" :stroke-width="2.5" />
                     </button>
                   </div>
-                  <AppButton variant="outline" size="lg" class="flex-1" @click="router.push('/cart')">
+                  <AppButton
+                    variant="outline"
+                    size="lg"
+                    class="flex-1 rounded-full"
+                    @click="router.push('/cart')"
+                  >
                     Lihat Keranjang
                   </AppButton>
                 </div>
               </Transition>
             </div>
             <a v-else :href="productWaLink" target="_blank" rel="noopener noreferrer">
-              <AppButton size="lg" class="w-full">
+              <AppButton size="lg" class="w-full rounded-full">
                 <MessageCircle :size="18" />
                 Hubungi Yuna
               </AppButton>
             </a>
           </div>
-
         </div>
       </div>
     </Transition>
@@ -188,49 +215,67 @@ const galleryImages = computed(() => {
   <!-- Mobile fixed bottom CTA -->
   <Teleport to="body">
     <div
-      v-if="product && !isLoading"
-      class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border px-4 pt-3 pb-3 pb-safe"
+      v-if="product || isLoading"
+      class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-background border-t border-border px-4 pt-4 pb-4 flex items-center justify-end"
     >
-      <a v-if="!isAvailable" :href="productWaLink" target="_blank" rel="noopener noreferrer">
-        <AppButton size="lg" class="w-full">
+      <a
+        v-if="!isLoading && !isAvailable"
+        :href="productWaLink"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <AppButton size="lg" class="rounded-full w-56">
           <MessageCircle :size="18" />
           Hubungi Yuna
         </AppButton>
       </a>
-      <div v-else>
+      <div v-else class="w-full flex items-center justify-end">
         <Transition name="cart-swap" mode="out-in">
-          <AppButton
-            v-if="qty === 0"
-            key="add"
-            size="lg"
-            class="w-full"
-            @click="cartStore.addItem(product)"
-          >
-            <ShoppingCart :size="18" />
-            Titip Ini
-          </AppButton>
+          <!-- qty = 0: just the CTA button -->
+          <div v-if="qty === 0" key="add" class="flex justify-end">
+            <AppButton
+              size="lg"
+              class="rounded-full w-56"
+              :disabled="isLoading"
+              @click="cartStore.addItem(product!)"
+            >
+              <Loader2 v-if="isLoading" :size="18" class="animate-spin" />
+              <ShoppingCart v-else :size="18" />
+              Titip Ini
+            </AppButton>
+          </div>
 
-          <div v-else key="qty" class="flex items-center gap-3">
-            <div class="flex items-center bg-accent rounded-xl p-1.5 gap-2">
+          <!-- qty > 0: qty control + view cart -->
+          <div v-else key="qty" class="flex items-center justify-between w-full">
+            <div
+              class="flex items-center bg-white rounded-full overflow-hidden border border-gray-100"
+            >
               <button
-                @click="qty === 1 ? cartStore.removeItem(product.id) : cartStore.updateQuantity(product.id, qty - 1)"
-                :class="cn(
-                  'w-9 h-9 rounded-lg bg-background border border-border flex items-center justify-center transition-colors shadow-sm',
-                  qty === 1 ? 'text-danger hover:bg-danger/10' : 'text-primary hover:bg-accent',
-                )"
+                @click="
+                  qty === 1
+                    ? cartStore.removeItem(product!.id)
+                    : cartStore.updateQuantity(product!.id, qty - 1)
+                "
+                class="w-10 h-9 flex items-center justify-center transition-colors hover:bg-secondary"
+                :class="qty === 1 ? 'text-gray-400' : 'text-primary'"
               >
-                <Trash2 v-if="qty === 1" :size="16" />
-                <Minus v-else :size="16" />
+                <Trash2 v-if="qty === 1" :size="15" />
+                <Minus v-else :size="15" :stroke-width="2.5" />
               </button>
-              <span class="w-8 text-center font-bold text-primary">{{ qty }}</span>
+              <span class="w-9 text-center text-sm font-semibold text-gray-800">{{ qty }}</span>
               <button
-                @click="cartStore.addItem(product)"
-                class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors"
+                @click="cartStore.addItem(product!)"
+                class="w-10 h-9 flex items-center justify-center text-primary hover:bg-secondary transition-colors"
               >
-                <Plus :size="16" />
+                <Plus :size="15" :stroke-width="2.5" />
               </button>
             </div>
-            <AppButton variant="outline" size="lg" class="flex-1" @click="router.push('/cart')">
+            <AppButton
+              variant="outline"
+              size="lg"
+              class="rounded-full w-60"
+              @click="router.push('/cart')"
+            >
               Lihat Keranjang
             </AppButton>
           </div>
@@ -238,43 +283,72 @@ const galleryImages = computed(() => {
       </div>
     </div>
   </Teleport>
-
 </template>
 
 <style scoped>
 .page-fade-enter-active {
-  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.page-fade-leave-active { transition: opacity 0.2s ease; }
-.page-fade-enter-from { opacity: 0; transform: translateY(14px); }
-.page-fade-leave-to  { opacity: 0; }
+.page-fade-leave-active {
+  transition: opacity 0.1s ease;
+}
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-fade-leave-to {
+  opacity: 0;
+}
 
 .img-reveal {
-  animation: imgReveal 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: 80ms;
+  animation: imgReveal 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes imgReveal {
-  from { opacity: 0; transform: scale(1.05); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .detail-stagger {
-  animation: staggerUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 65ms + 120ms);
+  animation: staggerUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 40ms + 60ms);
 }
 
 @keyframes staggerUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .cart-swap-enter-active {
-  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cart-swap-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
-.cart-swap-enter-from { opacity: 0; transform: translateY(8px); }
-.cart-swap-leave-to  { opacity: 0; transform: translateY(-6px); }
+.cart-swap-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.cart-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
 </style>

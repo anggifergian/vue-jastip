@@ -7,7 +7,7 @@ defineOptions({ inheritAttrs: false })
 
 const buttonVariants = cva(
   [
-    'inline-flex items-center justify-center gap-2 font-semibold leading-none',
+    'inline-flex items-center justify-center gap-2 font-medium leading-none',
     'transition-all duration-150 select-none',
     'active:scale-[0.97]',
     'disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100',

@@ -24,14 +24,17 @@ export interface CatalogProduct {
   name: string
   description: string | null
   price: {
+    value: number
     formattedValue: string
-    currencyIso: string
+    currency: string
+    idr: { value: number; formattedValue: string }
   }
   currency: string
   country: string
   category: string | null
   category_name: string | null
   availability: Availability
+  maxOrder: number
   images: CatalogProductImage[]
   created_at: number
 }

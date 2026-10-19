@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
+import { swal } from '@/lib/swal'
 import type { CartItem } from '@/types'
 import type { CatalogProduct } from '@/services/catalog'
 
@@ -18,7 +19,15 @@ function loadFromStorage(): CartItem[] {
 export const useCartStore = defineStore('cart', () => {
   const items = ref<CartItem[]>(loadFromStorage())
 
-  const totalItems = computed(() => items.value.length)
+  const totalItems = computed(() => items.value.reduce((sum, item) => sum + item.quantity, 0))
+
+  const totalPriceIDR = computed(() =>
+    items.value.reduce((sum, item) => sum + item.price.idr.value * item.quantity, 0),
+  )
+
+  const totalPrice = computed(() => {
+    return items.value.reduce((sum, item) => sum + item.price.value * item.quantity, 0)
+  })
 
   watch(
     items,
@@ -28,9 +37,24 @@ export const useCartStore = defineStore('cart', () => {
     { deep: true },
   )
 
+  function showMaxOrderAlert(maxOrder: number) {
+    swal.fire({
+      icon: 'warning',
+      title: 'Batas maksimal',
+      text: `Maksimal ${maxOrder} item per produk untuk satu titipan.`,
+      confirmButtonText: 'Mengerti',
+    })
+  }
+
   function addItem(product: CatalogProduct) {
     const existing = items.value.find((i) => i.id === product.id)
+
     if (existing) {
+      if (existing.quantity >= product.maxOrder) {
+        showMaxOrderAlert(product.maxOrder)
+        return
+      }
+
       existing.quantity++
     } else {
       items.value.push({ ...product, quantity: 1, notes: '' })
@@ -46,8 +70,16 @@ export const useCartStore = defineStore('cart', () => {
       removeItem(id)
       return
     }
+
     const item = items.value.find((i) => i.id === id)
-    if (item) item.quantity = quantity
+    if (!item) return
+
+    if (quantity > item.maxOrder) {
+      showMaxOrderAlert(item.maxOrder)
+      return
+    }
+
+    item.quantity = quantity
   }
 
   function updateNotes(id: string, notes: string) {
@@ -66,6 +98,8 @@ export const useCartStore = defineStore('cart', () => {
   return {
     items,
     totalItems,
+    totalPrice,
+    totalPriceIDR,
     addItem,
     removeItem,
     updateQuantity,

@@ -15,25 +15,16 @@ import { waLink } from '@/lib/whatsapp'
             Informasi Penting / Important Notes
           </h3>
           <p class="text-sm text-gray-400 leading-relaxed mb-3">
-            Harga produk yang tertera adalah harga asli dari negara asal. Harga akhir yang Anda
-            bayarkan sudah mencakup komponen berikut:
+            Harga yang tertera sudah termasuk biaya jasa titip. Namun perlu diperhatikan:
           </p>
           <ul class="space-y-1.5 text-sm text-gray-400 mb-4">
             <li class="flex items-start gap-2">
               <span class="text-indigo-400 mt-0.5">•</span>
-              <span>Harga produk + <strong class="text-gray-300">biaya jasa titip</strong> (personal shopping fee)</span>
+              <span><strong class="text-gray-300">Bea cukai & ongkos kirim</strong> ke Indonesia belum termasuk dan akan dihitung saat barang tiba</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-indigo-400 mt-0.5">•</span>
-              <span><strong class="text-gray-300">Ongkos kirim internasional</strong> dari Jepang/Korea ke Indonesia</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-indigo-400 mt-0.5">•</span>
-              <span><strong class="text-gray-300">Bea cukai & pajak impor</strong> (PPN 11%) jika berlaku</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-indigo-400 mt-0.5">•</span>
-              <span><strong class="text-gray-300">Biaya handling & packaging</strong> — semua produk dikemas aman</span>
+              <span>Diperlukan <strong class="text-gray-300">DP 50%</strong> dari total titipan untuk konfirmasi pesanan</span>
             </li>
           </ul>
           <p class="text-xs text-gray-500">

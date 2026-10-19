@@ -30,10 +30,16 @@ export interface CartItem {
   id: string
   slug: string
   name: string
-  price: { formattedValue: string; currencyIso: string }
+  price: {
+    value: number
+    formattedValue: string
+    currency: string
+    idr: { value: number; formattedValue: string }
+  }
   currency: string
   country: string
   availability: { status: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'; remaining: string }
+  maxOrder: number
   images: { url: string; altText: string | null; imageType: string }[]
   quantity: number
   notes?: string

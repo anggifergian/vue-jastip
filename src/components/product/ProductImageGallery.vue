@@ -49,8 +49,10 @@ function goTo(index: number) {
           <img
             :src="img.url"
             :alt="img.alt ?? `Image ${i + 1}`"
-            :class="cn('w-full h-full object-cover', !inStock && 'grayscale opacity-60')"
+            :class="cn('w-full h-full object-cover img-lazy', !inStock && 'grayscale opacity-60')"
+            loading="lazy"
             draggable="false"
+            @load="(e) => (e.target as HTMLElement).classList.add('loaded')"
           />
         </div>
       </div>
